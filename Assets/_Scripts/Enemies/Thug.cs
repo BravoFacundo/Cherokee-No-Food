@@ -24,7 +24,7 @@ public class Thug : Enemy
         else
         if (col.name == "Trigger_EnemyReachPlayer")
         {
-            StartCoroutine(gameController.DealDamage(1, "Thug", gameObject));
+            StartCoroutine(gameManager.EnemyAttack(1, "Thug", gameObject));
         }
 
         if (col.name == "Trigger_EnemyStartAI")

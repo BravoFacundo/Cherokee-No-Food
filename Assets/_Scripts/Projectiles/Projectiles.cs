@@ -13,7 +13,7 @@ public class Projectiles : MonoBehaviour
 
     [Header("References")]
     public GameObject impactExplosion;
-    [HideInInspector] public GameController gameController;
+    [HideInInspector] public GameManager gameController;
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;

@@ -8,7 +8,8 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] string spawnThisAtStart;
 
     [Header("References")]
-    [SerializeField] GameController gameController;
+    [SerializeField] GameManager gameManager;
+    [SerializeField] ParticleController particleController;
     [SerializeField] GameObject impactExplosion;
     [SerializeField] Transform player;
     [SerializeField] GameObject enemiesBar;
@@ -29,8 +30,9 @@ public class EnemySpawner : MonoBehaviour
         for (int i = 0; i < enemiesToSpawn; i++)
         {
             GameObject newEnemy = Instantiate(enemiesPrefabs[enemyType-1], transform.position, transform.rotation);
-            newEnemy.GetComponent<Enemy>().gameController = gameController;
-            newEnemy.GetComponent<Enemy>().impactExplosion = impactExplosion;
+            newEnemy.GetComponent<Enemy>().gameManager = gameManager;
+            newEnemy.GetComponent<Enemy>().particleController = particleController;
+            //newEnemy.GetComponent<Enemy>().impactExplosion = impactExplosion;
             newEnemy.GetComponent<LookAtCamera>().target = player;
             yield return new WaitForSeconds(timeBetween);
         }
@@ -43,8 +45,9 @@ public class EnemySpawner : MonoBehaviour
             {
                 GameObject newEnemy = Instantiate(enemiesPrefabs[enemiesToSpawn[i] - '0' - 1], transform.position, transform.rotation);
                 newEnemy.name = newEnemy.name + i;
-                newEnemy.GetComponent<Enemy>().gameController = gameController;
-                newEnemy.GetComponent<Enemy>().impactExplosion = impactExplosion;
+                newEnemy.GetComponent<Enemy>().gameManager = gameManager;
+                newEnemy.GetComponent<Enemy>().particleController = particleController;
+                //newEnemy.GetComponent<Enemy>().impactExplosion = impactExplosion;
                 newEnemy.GetComponent<LookAtCamera>().target = player;
                 yield return new WaitForSeconds(7);
             }

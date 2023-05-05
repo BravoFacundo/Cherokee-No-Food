@@ -39,7 +39,7 @@ public class Ninja : Enemy
         else
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
-            StartCoroutine(gameController.DealDamage(1, "Ninja", gameObject));
+            StartCoroutine(gameManager.EnemyAttack(1, "Ninja", gameObject));
         }
 
         if (col.name == "Trigger_EnemyStartAI")

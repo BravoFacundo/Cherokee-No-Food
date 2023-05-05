@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Sumo : Enemy
 {
-
     public override void Start()
     {
         base.Start();
@@ -31,7 +30,7 @@ public class Sumo : Enemy
         else
         if (col.name == "Trigger_EnemyReachPlayer")
         {
-            StartCoroutine(gameController.DealDamage(1, "Sumo", gameObject));
+            StartCoroutine(gameManager.EnemyAttack(1, "Sumo", gameObject));
         }
 
         if (col.name == "Trigger_EnemyStartAI")

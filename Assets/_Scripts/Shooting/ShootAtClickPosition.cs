@@ -30,6 +30,7 @@ public class ShootAtClickPosition : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private GameObject bowObject;
+    [SerializeField] private GameManager gameManager;
     private Animator bowAnimator;
     private Camera cam;
 
@@ -170,6 +171,8 @@ public class ShootAtClickPosition : MonoBehaviour
             Rigidbody newArrow = Instantiate(arrow, spawnPosition, rotation) as Rigidbody;
             newArrow.transform.Rotate(0, 0, Random.Range(0, 180), Space.Self);
             newArrow.isKinematic = true;
+
+            StartCoroutine(nameof(gameManager.StopReceivingDamage));
         }        
 
         yield return new WaitForSeconds(shootReloadTime);

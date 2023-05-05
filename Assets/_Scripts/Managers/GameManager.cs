@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameController : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
     [Header("Config")]
     [SerializeField] int playerHealth = 11;
@@ -10,6 +10,7 @@ public class GameController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private ShootAtClickPosition shootAtClickPosition;
+    [SerializeField] private ParticleController particleController;
 
     [Header("References 2")]
     [SerializeField] private Animator healthAnimator;
@@ -77,7 +78,7 @@ public class GameController : MonoBehaviour
         }
     }
         
-    public IEnumerator DealDamage(int damageReceived, string character, GameObject enemyObj)
+    public IEnumerator EnemyAttack(int damageReceived, string character, GameObject enemyObj)
     {
         switch (character)
         {
@@ -146,6 +147,22 @@ public class GameController : MonoBehaviour
         StopCoroutine(nameof(DamagePlayer));
         StopCoroutine(nameof(ReceivingDamage));
         //shootAtClickPosition.shootMode = ShootAtClickPosition.ShootMode.ShootFromBowPosition;
+    }
+
+    public IEnumerator StopReceivingDamage()
+    {
+        yield return new WaitForSeconds(0);
+        if (beingAttacked)
+        {
+
+            yield return new WaitForSeconds(1f);
+
+            beingAttacked = false;
+            enemyAttackAnimator.SetBool("SumoDoingDamage", beingAttacked);
+            enemyAttackAnimator.SetBool("ThugDoingDamage", beingAttacked);
+            StopCoroutine(nameof(DamagePlayer));
+            StopCoroutine(nameof(ReceivingDamage));
+        }
     }
 
 }

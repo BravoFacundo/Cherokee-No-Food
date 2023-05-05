@@ -24,7 +24,7 @@ public class Boss : Enemy
         else
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
-            StartCoroutine(gameController.DealDamage(1, "Boss", gameObject));
+            StartCoroutine(gameManager.EnemyAttack(1, "Boss", gameObject));
         }
 
         if (col.name == "Trigger_EnemyStartAI")

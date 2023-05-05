@@ -27,8 +27,10 @@ public class Enemy : MonoBehaviour
     private bool isGroundedLock = false;
 
     [Header("References")]
-    public GameObject impactExplosion;
-    [HideInInspector] public GameController gameController;
+    //public GameObject impactExplosion;
+    [HideInInspector] public GameManager gameManager;
+    [HideInInspector] public ParticleController particleController;
+
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;
@@ -102,21 +104,36 @@ public class Enemy : MonoBehaviour
     public IEnumerator EnemyHit(GameObject arrow)
     {
         canMove = false;
+        particleController.ImpactExplosion(arrow.transform.position, transform.rotation);
+        Destroy(arrow);
+        yield return new WaitForSeconds(1f);
+        canMove = true;
+        isColliding = false;
+
+        /*
+        canMove = false;
         //Damage Animation
         GameObject newImpactExplosion = Instantiate(impactExplosion, arrow.transform.position, transform.rotation);
-        newImpactExplosion.transform.position = Vector3.MoveTowards(newImpactExplosion.transform.position, Camera.main.transform.position, 1.4f);
+        newImpactExplosion.transform.position = Vector3.MoveTowards(newImpactExplosion.transform.position, cam.transform.position, 1.4f);
         newImpactExplosion.GetComponent<LookAtCamera>().target = cam.transform;
         Destroy(arrow);
         yield return new WaitForSeconds(1f);
         canMove = true;
         isColliding = false;
         yield return new WaitForSeconds(.5f);
-        Destroy(newImpactExplosion);
+        //Destroy(newImpactExplosion);
+        */
     }
     public IEnumerator EnemyDeath(GameObject arrow)
     {
         canMove = false;
+        particleController.ImpactExplosion(arrow.transform.position, transform.rotation);
+        Destroy(arrow);
+        animator.SetTrigger("EnemyDeath");
+        yield return new WaitForSeconds(2f);
+        Destroy(gameObject);
 
+        /*
         GameObject newImpactExplosion = Instantiate(impactExplosion, arrow.transform.position + new Vector3(0, 0, -1f), transform.rotation);
         newImpactExplosion.GetComponent<LookAtCamera>().target = cam.transform;
         Destroy(arrow);
@@ -124,6 +141,7 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
         Destroy(newImpactExplosion);
+        */
     }
 
     public IEnumerator EnemyDodge() 
