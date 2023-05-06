@@ -8,6 +8,8 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private int enemyCount;
 
+    public List<RectTransform> coinTransforms = new List<RectTransform>();
+
     [Header("Config")]
     [SerializeField] private List<GameObject> bars = new();
     [SerializeField] private List<GameObject> coins = new();
@@ -34,7 +36,8 @@ public class UIManager : MonoBehaviour
         float enemiesBarYpos = enemiesBarPrefab.GetComponent<RectTransform>().anchoredPosition.y;
         float enemiesBarWidth = enemiesBarPrefab.GetComponent<RectTransform>().rect.width - 12;
 
-        List<RectTransform> coinTransforms = enemiesBarPrefab.GetComponentsInChildren<RectTransform>().ToList();
+        //List<RectTransform> coinTransforms = enemiesBarPrefab.GetComponentsInChildren<RectTransform>().ToList();
+        coinTransforms = enemiesBarPrefab.GetComponentsInChildren<RectTransform>().ToList();
         coinTransforms.RemoveAt(0);
 
         int barsNeeded = CalculateEnemyBars(enemyCount);
@@ -53,8 +56,8 @@ public class UIManager : MonoBehaviour
             {
                 Destroy(newBar.transform.GetChild(j).gameObject);
                 GameObject newCoin = Instantiate(coinPrefab, newBar.transform);
-                RectTransform newCoinRT = newBar.GetComponent<RectTransform>();
-                //newCoinRT = coinTransforms[i];
+                RectTransform newCoinRT = newCoin.GetComponent<RectTransform>();
+                newCoinRT.anchoredPosition = coinTransforms[j].anchoredPosition;
             }
         }
     }

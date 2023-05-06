@@ -6,12 +6,13 @@ public class EnemySpawner : MonoBehaviour
 {
     [Header("Debug Spawn")]
     [SerializeField] string spawnThisAtStart;
+    [SerializeField] float delayedStart;
 
     [Header("References")]
     [SerializeField] GameManager gameManager;
     [SerializeField] ParticleController particleController;
     [SerializeField] GameObject impactExplosion;
-    [SerializeField] Transform player;
+    private Transform player;
     [SerializeField] GameObject enemiesBar;
 
     [Header("Prefabs")]
@@ -21,8 +22,14 @@ public class EnemySpawner : MonoBehaviour
     {
         player = Camera.main.transform;
         
-        if (spawnThisAtStart != null) StartCoroutine(SpawnEnemies(spawnThisAtStart, 2f));
+        if (spawnThisAtStart != null) StartCoroutine(DelayedStart(delayedStart));
         //StartCoroutine(SpawnEnemies( 10 , 3, 5f));
+    }
+
+    private IEnumerator DelayedStart(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        StartCoroutine(SpawnEnemies(spawnThisAtStart, 2f));
     }
 
     IEnumerator SpawnEnemies(int enemiesToSpawn, int enemyType, float timeBetween)
@@ -43,12 +50,15 @@ public class EnemySpawner : MonoBehaviour
         {
             if (enemiesToSpawn[i] - '0' >= 1 && enemiesToSpawn[i] - '0' <= 4)
             {
+                print(enemiesToSpawn[i] - '0' - 1);
                 GameObject newEnemy = Instantiate(enemiesPrefabs[enemiesToSpawn[i] - '0' - 1], transform.position, transform.rotation);
                 newEnemy.name = newEnemy.name + i;
                 newEnemy.GetComponent<Enemy>().gameManager = gameManager;
                 newEnemy.GetComponent<Enemy>().particleController = particleController;
                 //newEnemy.GetComponent<Enemy>().impactExplosion = impactExplosion;
                 newEnemy.GetComponent<LookAtCamera>().target = player;
+                enemiesBar.transform.GetChild(0).GetChild(i).GetComponent<Animator>().SetInteger("EnemyReveal", enemiesToSpawn[i] - '0');
+
                 yield return new WaitForSeconds(7);
             }
         }
