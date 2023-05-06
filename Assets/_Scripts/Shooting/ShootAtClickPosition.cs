@@ -31,6 +31,7 @@ public class ShootAtClickPosition : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject bowObject;
     [SerializeField] private GameManager gameManager;
+    [SerializeField] private ParticleController particleController;
     private Animator bowAnimator;
     private Camera cam;
 
@@ -171,8 +172,10 @@ public class ShootAtClickPosition : MonoBehaviour
             Rigidbody newArrow = Instantiate(arrow, spawnPosition, rotation) as Rigidbody;
             newArrow.transform.Rotate(0, 0, Random.Range(0, 180), Space.Self);
             newArrow.isKinematic = true;
+            Destroy(newArrow.gameObject, .5f);
 
-            StartCoroutine(nameof(gameManager.StopReceivingDamage));
+            particleController.ImpactExplosion(spawnPosition + new Vector3(0,0,-.1f) , Quaternion.identity, false);
+            StartCoroutine(gameManager.StopReceivingDamage());
         }        
 
         yield return new WaitForSeconds(shootReloadTime);
@@ -188,7 +191,6 @@ public class ShootAtClickPosition : MonoBehaviour
         bowObject.transform.rotation = Quaternion.Euler(new Vector3(0, bowYRotation, 0));
     }
 
-
     private bool CheckAlpha()
     {
         Texture2D attackTexture = (Texture2D)cam.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite.texture;
@@ -202,13 +204,13 @@ public class ShootAtClickPosition : MonoBehaviour
         Color hitColor = attackTexture.GetPixel(uvX, uvY);
         if (hitColor.a > 0.05)
         {
-            Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " NO ES ALPHA");
             return false;
+            //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " NO ES ALPHA");
         }
         else
         {
-            Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " ES ALPHA");
             return true;
+            //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " ES ALPHA");
         }
     }
 

@@ -21,9 +21,6 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         healthAnimator.SetInteger("Health", playerHealth);
-
-        //Time.timeScale = 0.5f;
-        //Time.fixedDeltaTime = Time.timeScale * 0.01f;
     }
 
     private void Update()
@@ -154,14 +151,27 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0);
         if (beingAttacked)
         {
+            yield return new WaitForSeconds(.5f);
 
-            yield return new WaitForSeconds(1f);
-
+            
             beingAttacked = false;
-            enemyAttackAnimator.SetBool("SumoDoingDamage", beingAttacked);
-            enemyAttackAnimator.SetBool("ThugDoingDamage", beingAttacked);
+            enemyAttackAnimator.SetBool("Sumo_Attacking", beingAttacked);
+            enemyAttackAnimator.SetBool("Thug_Attacking", beingAttacked);
             StopCoroutine(nameof(DamagePlayer));
             StopCoroutine(nameof(ReceivingDamage));
+            
+        }
+    }
+
+    public void PauseGame(bool state)
+    {
+        if (state)
+        {
+            Time.timeScale = 0f;
+        }
+        else
+        {
+            Time.timeScale = 1f;
         }
     }
 

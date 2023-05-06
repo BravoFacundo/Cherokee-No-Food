@@ -20,5 +20,14 @@ public class ParticleController : MonoBehaviour
         GameObject newImpactExplosion = Instantiate(impactExplosion, spawnPosition, spawnRotation);
         newImpactExplosion.GetComponent<LookAtCamera>().target = cam.transform;
     }
-    
+    public void ImpactExplosion(Vector3 spawnPosition, Quaternion spawnRotation, bool lookAtCamera)
+    {
+        GameObject newImpactExplosion = Instantiate(impactExplosion, spawnPosition, spawnRotation);
+        if (!lookAtCamera)
+        {
+            newImpactExplosion.GetComponent<LookAtCamera>().enabled = false;
+            newImpactExplosion.GetComponentInChildren<SpriteRenderer>().sortingOrder = 1;
+        }
+    }
+
 }

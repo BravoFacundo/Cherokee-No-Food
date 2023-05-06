@@ -12,7 +12,6 @@ public class ArrowDeleteOnCollition : MonoBehaviour {
         {
             var collisionPoint = col.ClosestPoint(transform.position);
             var collisionPointScreenCoor = Camera.main.WorldToScreenPoint(collisionPoint);
-            print(collisionPointScreenCoor);
 
             if (CheckAlpha())
             {
@@ -54,13 +53,13 @@ public class ArrowDeleteOnCollition : MonoBehaviour {
         Color hitColor = exclusionTexture.GetPixel(uvX, uvY);
         if (hitColor.a > 0.05)
         {
-            Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "el fondo" + " NO ES ALPHA");
             return false;
+            //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "el fondo" + " NO ES ALPHA");
         }
         else
         {
-            Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "el fondo" + " ES ALPHA");
             return true;
+            //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "el fondo" + " ES ALPHA");
         }
     }
 
