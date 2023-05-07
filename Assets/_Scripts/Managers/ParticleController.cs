@@ -29,5 +29,10 @@ public class ParticleController : MonoBehaviour
             newImpactExplosion.GetComponentInChildren<SpriteRenderer>().sortingOrder = 1;
         }
     }
+    public void SmokeExplosion(Vector3 spawnPosition, Quaternion spawnRotation)
+    {
+        GameObject newSmokeExplosion = Instantiate(impactExplosion, spawnPosition, spawnRotation);
+        newSmokeExplosion.GetComponent<LookAtCamera>().target = cam.transform;
+    }
 
 }

@@ -50,16 +50,17 @@ public class EnemySpawner : MonoBehaviour
         {
             if (enemiesToSpawn[i] - '0' >= 1 && enemiesToSpawn[i] - '0' <= 4)
             {
-                print(enemiesToSpawn[i] - '0' - 1);
                 GameObject newEnemy = Instantiate(enemiesPrefabs[enemiesToSpawn[i] - '0' - 1], transform.position, transform.rotation);
                 newEnemy.name = newEnemy.name + i;
                 newEnemy.GetComponent<Enemy>().gameManager = gameManager;
                 newEnemy.GetComponent<Enemy>().particleController = particleController;
                 //newEnemy.GetComponent<Enemy>().impactExplosion = impactExplosion;
                 newEnemy.GetComponent<LookAtCamera>().target = player;
+                
+                //Estoy tomando la primera. Esto se rompe si tiene mas de 5 enemigos osea mas de 1 barra
                 enemiesBar.transform.GetChild(0).GetChild(i).GetComponent<Animator>().SetInteger("EnemyReveal", enemiesToSpawn[i] - '0');
 
-                yield return new WaitForSeconds(7);
+                yield return new WaitForSeconds(3);
             }
         }
     }

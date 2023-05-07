@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class Boss : Enemy
 {
-    
+    [Header("Prefabs")]
+    [SerializeField] private GameObject bombPrefab;
+    [SerializeField] private GameObject knifePrefab;
+
     public override void Start()
     {
         base.Start();

@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     [Header("Config")]
     [SerializeField] int playerHealth = 11;
     [SerializeField] bool beingAttacked = false;
+    private bool checkFirst = false;
 
     [Header("References")]
     [SerializeField] private ShootAtClickPosition shootAtClickPosition;
@@ -77,9 +78,16 @@ public class GameManager : MonoBehaviour
         
     public IEnumerator EnemyAttack(int damageReceived, string character, GameObject enemyObj)
     {
+        if (beingAttacked && !checkFirst)
+        {
+            SetGameState("pause", true);
+            SetGameState("Loose", true);
+            checkFirst = true;
+        }
+        else
         switch (character)
         {
-            case "Thug":
+            case "Thug":                
                 beingAttacked = true;
                 enemyAttackAnimator.SetBool("Thug_Attacking", beingAttacked);
                 Destroy(enemyObj);
@@ -132,14 +140,14 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                beingAttacked = false;
+                beingAttacked = false; checkFirst = false;
                 enemyAttackAnimator.SetBool("SumoDoingDamage", beingAttacked);
                 StopCoroutine(nameof(DamagePlayer));
                 StopCoroutine(nameof(ReceivingDamage));
                 //shootAtClickPosition.shootMode = ShootAtClickPosition.ShootMode.ShootFromBowPosition;
             }
         }
-        beingAttacked = false;
+        beingAttacked = false; checkFirst = false;
         enemyAttackAnimator.SetBool("SumoDoingDamage", beingAttacked);
         StopCoroutine(nameof(DamagePlayer));
         StopCoroutine(nameof(ReceivingDamage));
@@ -151,27 +159,27 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0);
         if (beingAttacked)
         {
+            beingAttacked = false; checkFirst = false;
             yield return new WaitForSeconds(.5f);
 
-            
-            beingAttacked = false;
             enemyAttackAnimator.SetBool("Sumo_Attacking", beingAttacked);
             enemyAttackAnimator.SetBool("Thug_Attacking", beingAttacked);
             StopCoroutine(nameof(DamagePlayer));
-            StopCoroutine(nameof(ReceivingDamage));
-            
+            StopCoroutine(nameof(ReceivingDamage));            
         }
     }
 
-    public void PauseGame(bool state)
+    public void SetGameState(string state, bool stateBool)
     {
-        if (state)
+        if (stateBool) Time.timeScale = 0f; else Time.timeScale = 1f;
+        switch (state)
         {
-            Time.timeScale = 0f;
-        }
-        else
-        {
-            Time.timeScale = 1f;
+            case "Pause":
+                print("Pause");
+                break;
+            case "Loose":
+                print("Loose");
+                break;
         }
     }
 

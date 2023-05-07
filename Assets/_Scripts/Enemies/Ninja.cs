@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Ninja : Enemy
 {
+    [Header("Prefabs")]
+    [SerializeField] private GameObject trunkPrefab;
+    [SerializeField] private GameObject bombPrefab;
+    [SerializeField] private GameObject shurikenPrefab;
 
     public override void Start()
     {
@@ -34,7 +38,7 @@ public class Ninja : Enemy
             print(hp + " - " + 2 + " = " + (hp - 2));
             hp -= 2;
             if (hp <= 0) StartCoroutine(EnemyDeath(col.gameObject));
-            else StartCoroutine(EnemyHit(col.gameObject));
+            else StartCoroutine(NinjaHit(col.gameObject));
         }
         else
         if (col.name == "Trigger_EnemyCenterToAttack")
@@ -53,6 +57,26 @@ public class Ninja : Enemy
             moveLeft = false; moveRight = false; center = true;
         }
 
+    }
+
+    public IEnumerator NinjaHit(GameObject arrow)
+    {
+        canMove = false;
+        particleController.ImpactExplosion(arrow.transform.position, transform.rotation);
+        GameObject newTrunk = Instantiate(trunkPrefab, arrow.transform.position, transform.rotation);
+        arrow.GetComponent<Rigidbody>().isKinematic = true;
+        arrow.transform.parent = newTrunk.transform;
+        arrow.transform.position = newTrunk.transform.position;
+        arrow.transform.localScale *= 2f;
+        Destroy(arrow.transform.GetChild(0).GetChild(0).gameObject);
+        Destroy(arrow.transform.GetChild(0).GetChild(1).gameObject);
+        Destroy(arrow.transform.GetChild(1).gameObject);
+        //arrow.GetComponent<MeshRenderer>().enabled = true;
+        Destroy(gameObject); //Mata al ninja
+        yield return new WaitForSeconds(2f);
+        Destroy(newTrunk);
+        canMove = true;
+        isColliding = false;
     }
 
     private IEnumerator NinjaDodge()

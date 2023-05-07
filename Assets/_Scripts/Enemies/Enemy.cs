@@ -109,20 +109,6 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(1f);
         canMove = true;
         isColliding = false;
-
-        /*
-        canMove = false;
-        //Damage Animation
-        GameObject newImpactExplosion = Instantiate(impactExplosion, arrow.transform.position, transform.rotation);
-        newImpactExplosion.transform.position = Vector3.MoveTowards(newImpactExplosion.transform.position, cam.transform.position, 1.4f);
-        newImpactExplosion.GetComponent<LookAtCamera>().target = cam.transform;
-        Destroy(arrow);
-        yield return new WaitForSeconds(1f);
-        canMove = true;
-        isColliding = false;
-        yield return new WaitForSeconds(.5f);
-        //Destroy(newImpactExplosion);
-        */
     }
     public IEnumerator EnemyDeath(GameObject arrow)
     {
@@ -132,16 +118,6 @@ public class Enemy : MonoBehaviour
         animator.SetTrigger("EnemyDeath");
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
-
-        /*
-        GameObject newImpactExplosion = Instantiate(impactExplosion, arrow.transform.position + new Vector3(0, 0, -1f), transform.rotation);
-        newImpactExplosion.GetComponent<LookAtCamera>().target = cam.transform;
-        Destroy(arrow);
-        animator.SetTrigger("EnemyDeath");
-        yield return new WaitForSeconds(2f);
-        Destroy(gameObject);
-        Destroy(newImpactExplosion);
-        */
     }
 
     public IEnumerator EnemyDodge() 
