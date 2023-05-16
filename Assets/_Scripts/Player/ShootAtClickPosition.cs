@@ -34,6 +34,7 @@ public class ShootAtClickPosition : MonoBehaviour
     [SerializeField] private ParticleController particleController;
     private Animator bowAnimator;
     private Camera cam;
+    private GameObject enemyAttack;
 
     [Header("Prefabs")]
     [SerializeField] private Rigidbody arrowPrefab;
@@ -42,7 +43,8 @@ public class ShootAtClickPosition : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
-        
+        enemyAttack = transform.parent.GetChild(2).gameObject;
+
         bowAnimator = bowObject.GetComponent<Animator>();
         bowAnimator.SetFloat("Arrow_ChargeSpeed", 1 / shootMaxCharge);
         bowAnimator.SetFloat("Arrow_ReloadSpeed", 1 / shootReloadTime);
@@ -134,7 +136,7 @@ public class ShootAtClickPosition : MonoBehaviour
         }
 
         //Check Shoot Mode
-        if (cam.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite != null)
+        if (enemyAttack.GetComponent<SpriteRenderer>().sprite != null)
         {
             if (CheckAlpha()) shootMode = ShootMode.ShootFromInputPosition;
             else shootMode = ShootMode.ShootToHUDPosition;
@@ -193,7 +195,7 @@ public class ShootAtClickPosition : MonoBehaviour
 
     private bool CheckAlpha()
     {
-        Texture2D attackTexture = (Texture2D)cam.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite.texture;
+        Texture2D attackTexture = (Texture2D)enemyAttack.GetComponent<SpriteRenderer>().sprite.texture;
         
         //Convert hit coordinates
         Vector2 pixelUV = new Vector2(Input.mousePosition.x, Input.mousePosition.y);

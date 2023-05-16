@@ -21,11 +21,6 @@ public class Thug : Enemy
             if (hp <= 0) StartCoroutine(EnemyDeath(col.gameObject));
             else StartCoroutine(EnemyHit(col.gameObject));
         }
-        else
-        if (col.name == "Trigger_EnemyReachPlayer")
-        {
-            StartCoroutine(gameManager.EnemyAttack(1, "Thug", gameObject));
-        }
 
         if (col.name == "Trigger_EnemyStartAI")
         {
@@ -38,6 +33,7 @@ public class Thug : Enemy
             moveLeft = false; moveRight = false; center = true;
         }
         
+        //if (col.name == "Trigger_Player") StartCoroutine(gameManager.EnemyAttack(1, "Thug", gameObject));
     }
 
 }

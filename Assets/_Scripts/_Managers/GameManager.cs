@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(.2f);
         }
     }
-    private IEnumerator DamagePlayer(int damagePoints)
+    public IEnumerator DamagePlayer(int damagePoints)
     {
         var newHealth = Mathf.Clamp(playerHealth - damagePoints, 0, 12);
         healthAnimator.SetTrigger("ShakeBar");

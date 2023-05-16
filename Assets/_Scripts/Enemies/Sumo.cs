@@ -27,11 +27,6 @@ public class Sumo : Enemy
             if (hp <= 0) StartCoroutine(EnemyDeath(col.gameObject));
             else StartCoroutine(EnemyHit(col.gameObject));
         }
-        else
-        if (col.name == "Trigger_EnemyReachPlayer")
-        {
-            StartCoroutine(gameManager.EnemyAttack(1, "Sumo", gameObject));
-        }
 
         if (col.name == "Trigger_EnemyStartAI")
         {
@@ -43,7 +38,8 @@ public class Sumo : Enemy
             StopCoroutine(nameof(SumoDodge));
             moveLeft = false; moveRight = false; center = true;
         }
-
+                
+        //if (col.name == "Trigger_Player") StartCoroutine(gameManager.EnemyAttack(1, "Sumo", gameObject));
     }
 
     private IEnumerator SumoDodge()

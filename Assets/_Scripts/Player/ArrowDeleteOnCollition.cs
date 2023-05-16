@@ -8,7 +8,7 @@ public class ArrowDeleteOnCollition : MonoBehaviour {
 
     private void OnTriggerEnter(Collider col)
     {
-        if (col.gameObject.CompareTag("Arrow") || col.gameObject.CompareTag("Bullet"))
+        if (col.gameObject.CompareTag("Arrow"))
         {
             var collisionPoint = col.ClosestPoint(transform.position);
             var collisionPointScreenCoor = Camera.main.WorldToScreenPoint(collisionPoint);

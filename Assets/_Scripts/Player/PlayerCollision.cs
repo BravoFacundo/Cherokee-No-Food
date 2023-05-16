@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerCollision : MonoBehaviour
+{
+    [SerializeField] private GameManager gameManager;
+
+    private void OnTriggerEnter(Collider col)
+    {
+        GameObject colObj = GetTaggedParentName(col.transform);
+        string colName = colObj.name;
+
+        switch (colName)
+        {
+            //Este caso debe ser borrado luego
+            case string name when name.StartsWith("Projectile"):
+                print("Projectile ataca");
+                StartCoroutine(gameManager.DamagePlayer(1));
+                Destroy(colObj); //Provisional
+                break;
+
+            case string name when name.StartsWith("Thug"):
+                StartCoroutine(gameManager.EnemyAttack(1, "Thug", colObj));
+                break;
+
+            case string name when name.StartsWith("Sumo"):
+                StartCoroutine(gameManager.EnemyAttack(1, "Sumo", colObj));
+                break;
+
+            case string name when name.StartsWith("Shuriken"):
+                print("Shuriken Impact");
+                StartCoroutine(gameManager.DamagePlayer(2));
+                Destroy(colObj); //Provisional
+                break;
+
+            case string name when name.StartsWith("Knife"):
+                print("Knife Impact");
+                StartCoroutine(gameManager.DamagePlayer(2));
+                Destroy(colObj); //Provisional
+                break;
+
+            case string name when name.StartsWith("Bomb"):
+                print("Bomb Impact");
+                StartCoroutine(gameManager.DamagePlayer(3));
+                Destroy(colObj); //Provisional
+                break;
+        }
+
+    }
+
+    public GameObject GetTaggedParentName(Transform child)
+    {
+        if (!child.CompareTag("Untagged")) return child.gameObject;
+
+        Transform parent = child.parent;
+        while (parent != null)
+        {
+            if (!parent.CompareTag("Untagged"))
+            {
+                return parent.gameObject;
+            }
+            parent = parent.parent;
+        }
+        return null;
+    }
+}
