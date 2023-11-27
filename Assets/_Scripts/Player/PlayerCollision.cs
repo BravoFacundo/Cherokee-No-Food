@@ -20,6 +20,8 @@ public class PlayerCollision : MonoBehaviour
                 Destroy(colObj); //Provisional
                 break;
 
+            //---------------Enemy Damage--------------------//
+
             case string name when name.StartsWith("Thug"):
                 StartCoroutine(gameManager.EnemyAttack(1, "Thug", colObj));
                 break;
@@ -27,6 +29,16 @@ public class PlayerCollision : MonoBehaviour
             case string name when name.StartsWith("Sumo"):
                 StartCoroutine(gameManager.EnemyAttack(1, "Sumo", colObj));
                 break;
+
+            //---------------Deployable Damage---------------//
+
+            case string name when name.StartsWith("Bomb"):
+                print("Bomb Impact");
+                StartCoroutine(gameManager.DamagePlayer(3));
+                Destroy(colObj); //Provisional
+                break;
+
+            //---------------Projectile Damage---------------//
 
             case string name when name.StartsWith("Shuriken"):
                 print("Shuriken Impact");
@@ -40,16 +52,11 @@ public class PlayerCollision : MonoBehaviour
                 Destroy(colObj); //Provisional
                 break;
 
-            case string name when name.StartsWith("Bomb"):
-                print("Bomb Impact");
-                StartCoroutine(gameManager.DamagePlayer(3));
-                Destroy(colObj); //Provisional
-                break;
         }
 
     }
 
-    public GameObject GetTaggedParentName(Transform child)
+    private GameObject GetTaggedParentName(Transform child)
     {
         if (!child.CompareTag("Untagged")) return child.gameObject;
 
