@@ -5,11 +5,6 @@ using UnityEngine;
 public class Thug : Enemy
 {
 
-    public override void Start() //esto tiene que estar mal. Fijarse si no poner nada es lo mismo
-    {
-        base.Start();
-    }
-
     private void OnTriggerEnter(Collider col)
     {
         if (col.CompareTag("Arrow"))

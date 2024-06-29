@@ -7,10 +7,26 @@ public class Boss : Enemy
     [Header("Prefabs")]
     [SerializeField] private GameObject bombPrefab;
     [SerializeField] private GameObject knifePrefab;
+    [SerializeField] private GameObject landSmokePrefab;
+
+    private bool isGroundedLockk = false;
 
     public override void Start()
     {
         base.Start();
+    }
+    public override void Update()
+    {
+        base.Update();
+
+        if (isGrounded && !isGroundedLockk)
+        {
+            isGroundedLockk = true;
+            Debug.Log("bum");
+            var ar = new Vector3(transform.position.x, 0, transform.position.z);
+            Instantiate(landSmokePrefab, ar, Quaternion.identity);
+        }
+        else if (!isGrounded) isGroundedLockk = false;
     }
 
     private void OnTriggerEnter(Collider col)
