@@ -5,7 +5,6 @@ using UnityEngine;
 public class Object : MonoBehaviour
 {
 
-
     [SerializeField] private float startRotation;
     private Rigidbody rb;
 

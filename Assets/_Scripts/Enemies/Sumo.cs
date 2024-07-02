@@ -36,7 +36,7 @@ public class Sumo : Enemy
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
             StopCoroutine(nameof(SumoDodge));
-            moveLeft = false; moveRight = false; center = true;
+            EnemyCenter();
         }
                 
         //if (col.name == "Trigger_Player") StartCoroutine(gameManager.EnemyAttack(1, "Sumo", gameObject));
@@ -75,8 +75,7 @@ public class Sumo : Enemy
                         rb.AddForce(10f * jumpForce * Vector3.up, ForceMode.Impulse);
                         yield return new WaitForSeconds(3f);
                     }                    
-                    break;
-                
+                    break;                
             }            
         }
     }

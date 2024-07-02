@@ -86,21 +86,6 @@ public class Enemy : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider col)
-    {
-        if (col.name == "EnemyMoveStartArea")
-        {
-            StartCoroutine(nameof(EnemyDodge));
-        }
-        else
-        if (col.name == "EnemyMoveEndArea")
-        {
-            StopCoroutine(nameof(EnemyDodge));
-            moveLeft = false; moveRight = false; center = true;
-        }        
-
-    }
-
     public IEnumerator EnemyHit(GameObject arrow)
     {
         canMove = false;
@@ -119,32 +104,10 @@ public class Enemy : MonoBehaviour
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
     }
-
-    public IEnumerator EnemyDodge() 
+    public void EnemyCenter()
     {
-        while (!center)
-        {
-            string[] actions = { "MoveForward", "MoveRight", "MoveLeft" };
-            int random = Random.Range(0, actions.Length);
-            float moveTime = Random.Range(3f, 6f);
-            yield return new WaitForSeconds(moveTime);
-
-            switch (actions[random])
-            {
-                case "MoveForward":                    
-                    moveLeft = false;
-                    moveRight = false;
-                    break;
-                case "MoveRight":
-                    moveRight = true;
-                    moveLeft = false;
-                    break;
-                case "MoveLeft":
-                    moveLeft = true;
-                    moveRight = false;
-                    break;
-            }
-        }
+        moveLeft = false; moveRight = false; 
+        center = true;
     }
 
     public void SetParticleEmition(bool b)

@@ -43,7 +43,8 @@ public class Ninja : Enemy
         else
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
-            StartCoroutine(gameManager.EnemyAttack(1, "Ninja", gameObject));
+            //StartCoroutine(gameManager.EnemyAttack(1, "Ninja", gameObject));
+            StartCoroutine(nameof(NinjaAttack));
         }
 
         if (col.name == "Trigger_EnemyStartAI")
@@ -54,11 +55,18 @@ public class Ninja : Enemy
         if (col.name == "Trigger_EnemyCenterToDrop")
         {
             StopCoroutine(nameof(NinjaDodge));
-            moveLeft = false; moveRight = false; center = true;
+            EnemyCenter();
         }
 
     }
 
+    private IEnumerator NinjaAttack()
+    {
+        Debug.Log("Ninja Attack");
+        GameObject newBomb = Instantiate(bombPrefab, transform.position, transform.rotation);
+        Destroy(gameObject);
+        yield return new WaitForSeconds(2f);
+    }
     public IEnumerator NinjaHit(GameObject arrow)
     {
         canMove = false;

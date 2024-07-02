@@ -6,10 +6,7 @@ public class StopAnimationOnJump : MonoBehaviour
 {
     private Animator animator;
 
-    private void Start()
-    {
-        animator = GetComponentInParent<Enemy>().animator;
-    }
+    private void Start() => animator = GetComponentInParent<Enemy>().animator;
 
     public void StopAnimation()
     {

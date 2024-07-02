@@ -103,28 +103,12 @@ public class GameManager : MonoBehaviour
                 break;
 
             case "Ninja":
-                Destroy(enemyObj);
+                Destroy(enemyObj); Debug.Log("Ninja reach player. It should not be possible");
                 break;
             case "Boss":
-                Destroy(enemyObj);
+                Destroy(enemyObj); Debug.Log("Boss reach player. It should not be possible");
                 break;
-
-            case "ThugBackup":
-                enemyAttackAnimator.SetTrigger("ThugDamage");
-                Destroy(enemyObj);
-                yield return new WaitForSeconds(1f);
-                bowAnimator.SetTrigger("ShootArrow");
-                enemyImpactAnimator.SetTrigger("ArrowExplosion");
-                enemyAttackAnimator.SetTrigger("ThugDeath");
-                break;
-            case "SumoBackup":
-                enemyAttackAnimator.SetTrigger("SumoDamage");
-                Destroy(enemyObj);
-                yield return new WaitForSeconds(1f);
-                bowAnimator.SetTrigger("ShootArrow");
-                enemyImpactAnimator.SetTrigger("ArrowExplosion");
-                enemyAttackAnimator.SetTrigger("SumoDeath");
-                break;            
+        
         }
     }
 

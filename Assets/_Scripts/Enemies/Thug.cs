@@ -19,16 +19,43 @@ public class Thug : Enemy
 
         if (col.name == "Trigger_EnemyStartAI")
         {
-            StartCoroutine(nameof(EnemyDodge));
+            StartCoroutine(nameof(ThugDodge));
         }
         else
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
-            StopCoroutine(nameof(EnemyDodge));
-            moveLeft = false; moveRight = false; center = true;
+            StopCoroutine(nameof(ThugDodge));
+            EnemyCenter();
         }
         
         //if (col.name == "Trigger_Player") StartCoroutine(gameManager.EnemyAttack(1, "Thug", gameObject));
+    }
+
+    private IEnumerator ThugDodge()
+    {
+        while (!center)
+        {
+            string[] actions = { "MoveForward", "MoveRight", "MoveLeft" };
+            int random = Random.Range(0, actions.Length);
+            float moveTime = Random.Range(3f, 6f);
+            yield return new WaitForSeconds(moveTime);
+
+            switch (actions[random])
+            {
+                case "MoveForward":
+                    moveLeft = false;
+                    moveRight = false;
+                    break;
+                case "MoveRight":
+                    moveRight = true;
+                    moveLeft = false;
+                    break;
+                case "MoveLeft":
+                    moveLeft = true;
+                    moveRight = false;
+                    break;
+            }
+        }
     }
 
 }

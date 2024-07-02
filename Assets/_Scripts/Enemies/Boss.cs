@@ -54,7 +54,7 @@ public class Boss : Enemy
         if (col.name == "Trigger_EnemyCenterToDrop")
         {
             StopCoroutine(nameof(BossDodge));
-            moveLeft = false; moveRight = false; center = true;
+            EnemyCenter();
         }
 
     }
