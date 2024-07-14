@@ -27,10 +27,10 @@ public class Enemy : MonoBehaviour
     private bool isGroundedLock = false;
 
     [Header("References")]
+    [HideInInspector] public PlayerController playerController;
+    //[HideInInspector] public GameManager gameManager;
+    [HideInInspector] public ParticleManager particleController;
     //public GameObject impactExplosion;
-    [HideInInspector] public GameManager gameManager;
-    [HideInInspector] public ParticleController particleController;
-
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;

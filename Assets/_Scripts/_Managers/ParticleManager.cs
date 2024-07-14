@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ParticleController : MonoBehaviour
+public class ParticleManager : MonoBehaviour
 {
     [Header("References")]
     private Camera cam;

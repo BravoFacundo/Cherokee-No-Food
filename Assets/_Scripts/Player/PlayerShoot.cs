@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ShootAtClickPosition : MonoBehaviour
+public class PlayerShoot : MonoBehaviour
 {   
 
     [Header("Configuration")]
@@ -29,9 +29,9 @@ public class ShootAtClickPosition : MonoBehaviour
     private float bowYRotation;
 
     [Header("References")]
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private ParticleManager particleController;
     [SerializeField] private GameObject bowObject;
-    [SerializeField] private GameManager gameManager;
-    [SerializeField] private ParticleController particleController;
     private Animator bowAnimator;
     private Camera cam;
     private GameObject enemyAttack;
@@ -43,6 +43,7 @@ public class ShootAtClickPosition : MonoBehaviour
     void Start()
     {
         cam = Camera.main;
+
         enemyAttack = transform.parent.GetChild(2).gameObject;
 
         bowAnimator = bowObject.GetComponent<Animator>();
@@ -177,7 +178,7 @@ public class ShootAtClickPosition : MonoBehaviour
             Destroy(newArrow.gameObject, .5f);
 
             particleController.ImpactExplosion(spawnPosition + new Vector3(0,0,-.1f) , Quaternion.identity, false);
-            StartCoroutine(gameManager.StopReceivingDamage());
+            StartCoroutine(playerController.StopReceivingDamage());
         }        
 
         yield return new WaitForSeconds(shootReloadTime);

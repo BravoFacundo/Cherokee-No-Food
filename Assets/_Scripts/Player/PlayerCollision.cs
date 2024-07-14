@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerCollision : MonoBehaviour
 {
-    [SerializeField] private GameManager gameManager;
+    [SerializeField] private PlayerController playerController;
 
     private void OnTriggerEnter(Collider col)
     {
@@ -16,25 +16,25 @@ public class PlayerCollision : MonoBehaviour
             //Este caso debe ser borrado luego
             case string name when name.StartsWith("Projectile"):
                 print("Projectile ataca");
-                StartCoroutine(gameManager.DamagePlayer(1));
+                StartCoroutine(playerController.DamagePlayer(1));
                 Destroy(colObj); //Provisional
                 break;
 
             //---------------Enemy Damage--------------------//
 
             case string name when name.StartsWith("Thug"):
-                StartCoroutine(gameManager.EnemyAttack(1, "Thug", colObj));
+                StartCoroutine(playerController.EnemyAttack(1, "Thug", colObj));
                 break;
 
             case string name when name.StartsWith("Sumo"):
-                StartCoroutine(gameManager.EnemyAttack(1, "Sumo", colObj));
+                StartCoroutine(playerController.EnemyAttack(1, "Sumo", colObj));
                 break;
 
             //---------------Deployable Damage---------------//
 
             case string name when name.StartsWith("Bomb"):
                 print("Bomb Impact");
-                StartCoroutine(gameManager.DamagePlayer(3));
+                StartCoroutine(playerController.DamagePlayer(3));
                 Destroy(colObj); //Provisional
                 break;
 
@@ -42,13 +42,13 @@ public class PlayerCollision : MonoBehaviour
 
             case string name when name.StartsWith("Shuriken"):
                 print("Shuriken Impact");
-                StartCoroutine(gameManager.DamagePlayer(2));
+                StartCoroutine(playerController.DamagePlayer(2));
                 Destroy(colObj); //Provisional
                 break;
 
             case string name when name.StartsWith("Knife"):
                 print("Knife Impact");
-                StartCoroutine(gameManager.DamagePlayer(2));
+                StartCoroutine(playerController.DamagePlayer(2));
                 Destroy(colObj); //Provisional
                 break;
 
