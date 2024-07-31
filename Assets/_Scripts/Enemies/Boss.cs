@@ -14,7 +14,9 @@ public class Boss : Enemy
     public override void Start()
     {
         base.Start();
+        StartCoroutine(nameof(BossSpawn));
     }
+
     public override void Update()
     {
         base.Update();
@@ -43,27 +45,26 @@ public class Boss : Enemy
         else
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
-            StartCoroutine(playerController.EnemyAttack(1, "Boss", gameObject));
+
         }
 
         if (col.name == "Trigger_EnemyStartAI")
         {
-            StartCoroutine(nameof(BossDodge));
+
         }
         else
         if (col.name == "Trigger_EnemyCenterToDrop")
         {
             StopCoroutine(nameof(BossDodge));
-            EnemyCenter();
+            EnemyMoveCenter();
         }
 
     }
 
     private IEnumerator BossDodge()
     {
-        while (!center)
+        while (!moveCenter)
         {
-
             string[] actions = { "MoveForward", "MoveRight", "MoveLeft", "Jump", "JumpAttack" };
             int random = Random.Range(0, actions.Length);
             float moveTime = Random.Range(3f, 6f);
@@ -88,7 +89,7 @@ public class Boss : Enemy
                     moveLeft = false;
                     if (canMove && isGrounded)
                     {
-                        moveForward = false;
+                        //moveForward = false;
                         rb.velocity = Vector3.zero;
                         rb.AddForce(10f * jumpForce * Vector3.up, ForceMode.Impulse);
                         yield return new WaitForSeconds(3f);
@@ -99,7 +100,7 @@ public class Boss : Enemy
                     moveLeft = false;
                     if (canMove && isGrounded)
                     {
-                        moveForward = false;
+                        //moveForward = false;
                         rb.velocity = Vector3.zero;
                         rb.AddForce(10f * jumpForce * Vector3.up, ForceMode.Impulse);
                         yield return new WaitForSeconds(3f);
@@ -109,5 +110,15 @@ public class Boss : Enemy
             }
         }
 
+    }
+
+    private IEnumerator BossSpawn()
+    {
+        yield return new WaitForSeconds(2.5f);
+        canMove = false;
+        levitate = false;
+        yield return new WaitForSeconds(2.5f);
+        canMove = true;
+        StartCoroutine(nameof(BossDodge));
     }
 }

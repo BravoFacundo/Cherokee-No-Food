@@ -55,7 +55,7 @@ public class Ninja : Enemy
         if (col.name == "Trigger_EnemyCenterToDrop")
         {
             StopCoroutine(nameof(NinjaDodge));
-            EnemyCenter();
+            EnemyMoveCenter();
         }
 
     }
@@ -89,7 +89,7 @@ public class Ninja : Enemy
 
     private IEnumerator NinjaDodge()
     {
-        while (!center)
+        while (!moveCenter)
         {
 
             string[] actions = { "MoveForward", "MoveRight", "MoveLeft", "JumpRight" };

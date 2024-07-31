@@ -10,14 +10,12 @@ public class Enemy : MonoBehaviour
     public float jumpForce = 5f;
 
     [Header("Move Variables")]
-    [SerializeField] public bool canMove;
-    [SerializeField] public bool moveForward;
-    [SerializeField] public bool moveRight;
-    [SerializeField] public bool moveLeft;
-    [SerializeField] public bool center;
+    public bool canMove;
+    public bool moveForward, moveRight, moveLeft, moveCenter;
+    public bool levitate;
+    [HideInInspector] public bool levitateLock = false;
 
-    private Vector3 moveDirection;
-
+    [Header("Debug Variables")]
     public bool isColliding;
     
     [Header("Ground Check")]    
@@ -28,9 +26,7 @@ public class Enemy : MonoBehaviour
 
     [Header("References")]
     [HideInInspector] public PlayerController playerController;
-    //[HideInInspector] public GameManager gameManager;
     [HideInInspector] public ParticleManager particleController;
-    //public GameObject impactExplosion;
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;
@@ -48,26 +44,30 @@ public class Enemy : MonoBehaviour
 
     public virtual void Update()
     {
-        isGrounded = Physics.CheckSphere(transform.position, .5f , groundMask);
+        isGrounded = Physics.CheckSphere(transform.position, .1f , groundMask);
 
         if (isGrounded && !isGroundedLock) SetParticleEmition(true);
         else if (!isGrounded && isGroundedLock) SetParticleEmition(false);
+
+        if (canMove) animator.SetBool("EnemyIdle", false);
+        else animator.SetBool("EnemyIdle", true);
     }
 
     public virtual void FixedUpdate()
     {
         if (canMove)
         {
-            if (center) 
+            if (moveCenter) 
             {
                 if (transform.position.x > 0.0f) moveLeft = true;
                 if (transform.position.x < 0.0f) moveRight = true;
                 if (transform.position.x > -0.01f && transform.position.x < 0.01f)
                 {
-                    center = false; moveLeft = false; moveRight = false;
+                    moveCenter = false; moveLeft = false; moveRight = false;
                     rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
                 }
-            }
+            }            
+
             //Cuando se esta siendo atacado, centrar al enemigo a -0.9 o 0.9 dependiendo del lado del que venga
             //Esto es para que el jugador sepa que se acerca otro enemigo. Y tenga feedback de su game over
 
@@ -84,6 +84,23 @@ public class Enemy : MonoBehaviour
                 rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
             }
         }
+        if (levitate && !levitateLock)
+        {
+            levitateLock = true;
+            rb.constraints = RigidbodyConstraints.FreezePositionY;
+        }
+        else if (!levitate && levitateLock)
+        {
+            levitateLock = false;
+            rb.constraints = RigidbodyConstraints.None;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+        }
+    }
+
+    public void EnemyMoveCenter()
+    {
+        moveLeft = false; moveRight = false;
+        moveCenter = true;
     }
 
     public IEnumerator EnemyHit(GameObject arrow)
@@ -103,11 +120,6 @@ public class Enemy : MonoBehaviour
         animator.SetTrigger("EnemyDeath");
         yield return new WaitForSeconds(2f);
         Destroy(gameObject);
-    }
-    public void EnemyCenter()
-    {
-        moveLeft = false; moveRight = false; 
-        center = true;
     }
 
     public void SetParticleEmition(bool b)

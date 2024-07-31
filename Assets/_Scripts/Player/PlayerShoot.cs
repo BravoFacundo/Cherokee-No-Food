@@ -4,19 +4,14 @@ using UnityEngine;
 
 public class PlayerShoot : MonoBehaviour
 {   
+    private enum ShootMode { ShootFromBowPosition, ShootFromInputPosition, ShootToHUDPosition }
 
     [Header("Configuration")]
-    public float shootForce;
+    [SerializeField] private ShootMode shootMode; 
+    public float shootForce; 
     private float shootForceSave;
-
+    [SerializeField] private float shootChargeSpeed, shootMaxCharge, shootReloadTime;
     private ForceMode forceMode;
-
-    [SerializeField] private float shootChargeSpeed;
-    [SerializeField] private float shootMaxCharge;
-    [SerializeField] private float shootReloadTime;
-
-    public enum ShootMode { ShootFromBowPosition, ShootFromInputPosition, ShootToHUDPosition }
-    public ShootMode shootMode;
 
     [Header("Debug")]
     public bool isReloading;
@@ -207,13 +202,11 @@ public class PlayerShoot : MonoBehaviour
         Color hitColor = attackTexture.GetPixel(uvX, uvY);
         if (hitColor.a > 0.05)
         {
-            return false;
-            //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " NO ES ALPHA");
+            return false; //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " NO ES ALPHA");
         }
         else
         {
-            return true;
-            //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " ES ALPHA");
+            return true; //Debug.Log("La coordenada " + uvX + "/" + uvY + " en " + "Enemigo" + " ES ALPHA");
         }
     }
 

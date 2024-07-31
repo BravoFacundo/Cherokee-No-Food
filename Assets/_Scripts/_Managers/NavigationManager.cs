@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class NavigationManager : MonoBehaviour
 {    
@@ -14,5 +15,16 @@ public class NavigationManager : MonoBehaviour
     {
         Application.Quit();
         print("Exit");
+    }
+
+    private void Start()
+    {
+        if (SceneManager.GetActiveScene().name == "Menu") StartCoroutine(StartGame());
+    }
+
+    private IEnumerator StartGame()
+    {
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene("Development");
     }
 }

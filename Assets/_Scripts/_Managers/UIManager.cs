@@ -6,47 +6,68 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [SerializeField] private int enemyCount;
-
-    public List<RectTransform> coinTransforms = new List<RectTransform>();
 
     [Header("Config")]
     [SerializeField] private List<GameObject> bars = new();
     [SerializeField] private List<GameObject> coins = new();
-    [SerializeField] private GameObject enemiesBar;
+    [SerializeField] private GameObject enemyBar;
     private Animator enemiesBarAnimator;
 
     [Header("References")]
-    [SerializeField] private Transform enemiesBarParent;
+    [SerializeField] private Transform enemyBarParent;
+    [SerializeField] private Transform popupsParent;
+    [SerializeField] private List<RectTransform> coinTransforms = new List<RectTransform>();
     //private float enemiesBarYpos;
     //private float enemiesBarWidth;
 
     [Header("Prefabs")]
-    [SerializeField] private GameObject enemiesBarPrefab;
-    [SerializeField] private GameObject coinPrefab;
+    [SerializeField] private GameObject popupNewLevelPrefab;
+    [SerializeField] private GameObject enemyBarPrefab;
+    [SerializeField] private GameObject enemyCoinPrefab;
 
 
-    private void Start()
+    [Header("Lists")]
+    [SerializeField] private List<GameObject> enemiesList;
+    [SerializeField] private List<GameObject> bossList;
+    [SerializeField] private int totalSpawnedEnemies;
+    // totalSpawnedEnemies = enemiesList.Count + bossList.Count
+    [SerializeField] private int totalBars; //Cada 5 enemigos de enemiesList suma 1, cada 1 de bossList suma 1
+    [SerializeField] private int totalEnemies;
+    [SerializeField] private int totalBosses;
+    // if totalBosses == totalBars || totalBosses == 0 || totalBars == 1 { No Order Rule }
+
+    // if totalBars == 2 && totalBosses == 1 { Boss on 1st place }
+
+    // if totalBars == 3 && totalBosses == 1 { Boss on 2nd place }
+    // if totalBars == 3 && totalBosses == 2 { Boss on 1st and 3rd place }
+
+    // if totalBars == 4 && totalBosses == 1 { Not Posible }
+    // if totalBars == 4 && totalBosses == 2 { Boss on 2nd and 3rd place }
+    // if totalBars == 4 && totalBosses == 3 { Not Recommended, but Boss on 1st, 3rd and 4th place }
+
+    private IEnumerator Start()
     {
-        InstantiateBars(enemyCount);
+        yield return new WaitForSeconds(1.5f);
+        GameObject newPopup = Instantiate(popupNewLevelPrefab, popupsParent.transform);
+        newPopup.GetComponent<PopupNewLevel>().text = "Final Level";
     }
 
     public void InstantiateBars(int enemyCount)
     {
-        float enemiesBarYpos = enemiesBarPrefab.GetComponent<RectTransform>().anchoredPosition.y;
-        float enemiesBarWidth = enemiesBarPrefab.GetComponent<RectTransform>().rect.width - 12;
+        float enemiesBarYpos = enemyBarPrefab.GetComponent<RectTransform>().anchoredPosition.y;
+        float enemiesBarWidth = enemyBarPrefab.GetComponent<RectTransform>().rect.width - 12;
 
         //List<RectTransform> coinTransforms = enemiesBarPrefab.GetComponentsInChildren<RectTransform>().ToList();
-        coinTransforms = enemiesBarPrefab.GetComponentsInChildren<RectTransform>().ToList();
+        coinTransforms = enemyBarPrefab.GetComponentsInChildren<RectTransform>().ToList();
         coinTransforms.RemoveAt(0);
 
         int barsNeeded = CalculateEnemyBars(enemyCount);
         float barPosX = CalculateBarStartPosX(barsNeeded, enemiesBarWidth);
 
-        EraseCanvasElementsChilds(enemiesBarParent.gameObject);
+        Utilities.DestroyChildElements(enemyBarParent.gameObject);
         for (int i = 0; i < barsNeeded; i++)
         {
-            GameObject newBar = Instantiate(enemiesBarPrefab, enemiesBarParent);
+            GameObject newBar = Instantiate(enemyBarPrefab, enemyBarParent);
 
             RectTransform newBarRT = newBar.GetComponent<RectTransform>();
             newBarRT.anchoredPosition = new Vector2(barPosX, enemiesBarYpos);
@@ -55,7 +76,7 @@ public class UIManager : MonoBehaviour
             for (int j = 0; j < 5; j++)
             {
                 Destroy(newBar.transform.GetChild(j).gameObject);
-                GameObject newCoin = Instantiate(coinPrefab, newBar.transform);
+                GameObject newCoin = Instantiate(enemyCoinPrefab, newBar.transform);
                 RectTransform newCoinRT = newCoin.GetComponent<RectTransform>();
                 newCoinRT.anchoredPosition = coinTransforms[j].anchoredPosition;
             }

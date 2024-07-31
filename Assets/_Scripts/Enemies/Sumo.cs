@@ -36,7 +36,7 @@ public class Sumo : Enemy
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
             StopCoroutine(nameof(SumoDodge));
-            EnemyCenter();
+            EnemyMoveCenter();
         }
                 
         //if (col.name == "Trigger_Player") StartCoroutine(gameManager.EnemyAttack(1, "Sumo", gameObject));
@@ -44,7 +44,7 @@ public class Sumo : Enemy
 
     private IEnumerator SumoDodge()
     {
-        while (!center)
+        while (!moveCenter)
         {            
 
             string[] actions = { "MoveForward", "MoveRight", "MoveLeft", "Jump" };

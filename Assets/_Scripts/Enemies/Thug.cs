@@ -25,7 +25,7 @@ public class Thug : Enemy
         if (col.name == "Trigger_EnemyCenterToAttack")
         {
             StopCoroutine(nameof(ThugDodge));
-            EnemyCenter();
+            EnemyMoveCenter();
         }
         
         //if (col.name == "Trigger_Player") StartCoroutine(gameManager.EnemyAttack(1, "Thug", gameObject));
@@ -33,7 +33,7 @@ public class Thug : Enemy
 
     private IEnumerator ThugDodge()
     {
-        while (!center)
+        while (!moveCenter)
         {
             string[] actions = { "MoveForward", "MoveRight", "MoveLeft" };
             int random = Random.Range(0, actions.Length);

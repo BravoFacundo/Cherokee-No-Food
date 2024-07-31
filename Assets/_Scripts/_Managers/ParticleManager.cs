@@ -14,7 +14,7 @@ public class ParticleManager : MonoBehaviour
     {
         cam = Camera.main;
     }
-    
+
     public void ImpactExplosion(Vector3 spawnPosition, Quaternion spawnRotation)
     {
         GameObject newImpactExplosion = Instantiate(impactExplosion, spawnPosition, spawnRotation);
