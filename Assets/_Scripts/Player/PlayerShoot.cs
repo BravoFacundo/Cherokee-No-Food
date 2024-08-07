@@ -66,17 +66,17 @@ public class PlayerShoot : MonoBehaviour
             bowAnimator.SetFloat("Arrow_ChargeSpeed", f * -1);
         }
 
-        if (Input.GetMouseButtonDown(0)) StartCharging();
-        if (Input.GetMouseButton(0)) ContinueCharging();
-        if (Input.GetMouseButtonUp(0)) FinishCharging();
+        if (Input.GetMouseButtonDown(0)) BeginCharging();
+        if (Input.GetMouseButton(0)) UpdateCharging();
+        if (Input.GetMouseButtonUp(0)) EndCharging();
     }
 
-    private void StartCharging()
+    private void BeginCharging()
     {
         currentChargeTime = 0;
         bowAnimator.SetBool("Arrow_Charge", true);
     }
-    private void ContinueCharging()
+    private void UpdateCharging()
     {
         isCharging = true;
         bowAnimator.SetBool("Arrow_Charge", true);
@@ -85,7 +85,7 @@ public class PlayerShoot : MonoBehaviour
             currentChargeTime += Time.deltaTime * shootChargeSpeed;
         }
     }
-    private void FinishCharging()
+    private void EndCharging()
     {
         if (currentChargeTime <= shootMaxCharge * 0.50) CancelCharging();
         else 
@@ -102,7 +102,7 @@ public class PlayerShoot : MonoBehaviour
         bowAnimator.SetBool("Arrow_Charge", false);
         bowAnimator.SetTrigger("Arrow_CancelCharge");
     }
-    private void PrepareToShoot()
+    private void ExecuteShoot()
     {
         isCharging = false;
         currentChargeTime = 0;
@@ -111,7 +111,7 @@ public class PlayerShoot : MonoBehaviour
         bowAnimator.SetBool("Arrow_Charge", false);
         bowAnimator.SetTrigger("Arrow_Shoot");
     }
-    private void ReloadAfterShoot()
+    private void ReloadShoot()
     {
         bowAnimator.SetTrigger("Arrow_Reload");
         shootForce = defaultShootForce;
@@ -127,61 +127,56 @@ public class PlayerShoot : MonoBehaviour
 
     IEnumerator ShootArrow(int shootDamage)
     {
-        PrepareToShoot();
+        ExecuteShoot();
 
         Ray ray = cam.ScreenPointToRay(Input.mousePosition);
         Quaternion rotation = Quaternion.LookRotation(ray.direction);
 
-        ApplyShootDamageMultiplier(shootDamage);
+        var enemySpriteRenderer = enemyAttack.GetComponent<SpriteRenderer>();
 
-        SetShootMode();
+        ApplyShootDamageMultiplier(shootDamage);
+        SetShootMode(enemySpriteRenderer);
 
         Vector3 spawnPosition = CalculateSpawnPosition();
-
         CreateArrow(rotation, spawnPosition);
 
         yield return new WaitForSeconds(shootReloadTime);
-        ReloadAfterShoot();
+        ReloadShoot();
     }
 
     private void ApplyShootDamageMultiplier(int shootDamage)
     {
-        if (shootDamage == 2)
-        {
-            shootForce *= 1.25f;
-        }
+        if (shootDamage == 2) shootForce *= 1.25f;
     }
 
-    private void SetShootMode()
+    private void SetShootMode(SpriteRenderer enemySpriteRenderer)
     {
-        if (enemyAttack.GetComponent<SpriteRenderer>().sprite != null)
-        {
-            shootMode = CheckSpriteAlpha() ? ShootMode.InputPosition : ShootMode.HUDPosition;
-        }
-        else
-        {
-            shootMode = ShootMode.BowPosition;
-        }
+        if (enemySpriteRenderer.sprite != null)
+            shootMode = CheckSpriteAlpha(enemySpriteRenderer) ? ShootMode.InputPosition : ShootMode.HUDPosition;
+        else shootMode = ShootMode.BowPosition;
     }
 
     private Vector3 CalculateSpawnPosition()
     {
         Vector3 spawnPosition = Vector3.zero;
 
-        if (shootMode == ShootMode.BowPosition)
+        switch (shootMode)
         {
-            Vector2 pivotPosition = new Vector2(
-                bowObject.transform.position.x - (bowObject.GetComponent<RectTransform>().sizeDelta.x * 0.5f),
-                bowObject.transform.position.y + (bowObject.GetComponent<RectTransform>().sizeDelta.y * 0.5f));
-            spawnPosition = cam.ScreenToWorldPoint(new Vector3(pivotPosition.x, pivotPosition.y, cam.nearClipPlane + .6f));
-        }
-        else if (shootMode == ShootMode.InputPosition)
-        {
-            spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .6f));
-        }
-        else if (shootMode == ShootMode.HUDPosition)
-        {
-            spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .9f));
+            case ShootMode.BowPosition:
+                Vector2 bowSizeDelta = bowObject.GetComponent<RectTransform>().sizeDelta;
+                Vector2 pivotPosition = new(
+                    bowObject.transform.position.x - (bowSizeDelta.x * 0.5f),
+                    bowObject.transform.position.y + (bowSizeDelta.y * 0.5f));
+                spawnPosition = cam.ScreenToWorldPoint(new Vector3(pivotPosition.x, pivotPosition.y, cam.nearClipPlane + .6f));
+                break;
+
+            case ShootMode.InputPosition:
+                spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .6f));
+                break;
+
+            case ShootMode.HUDPosition:
+                spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .9f));
+                break;
         }
 
         return spawnPosition;
@@ -208,9 +203,9 @@ public class PlayerShoot : MonoBehaviour
         return newArrow;
     }
 
-    private bool CheckSpriteAlpha()
+    private bool CheckSpriteAlpha(SpriteRenderer enemySpriteRenderer)
     {
-        Texture2D attackTexture = (Texture2D)enemyAttack.GetComponent<SpriteRenderer>().sprite.texture;
+        Texture2D attackTexture = (Texture2D)enemySpriteRenderer.sprite.texture;
         if (attackTexture == null) return false;
 
         Vector2 pixelUV = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
