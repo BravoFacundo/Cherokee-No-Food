@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class Ninja : Enemy
 {
+    [Header("Configuration")]
+    [SerializeField] private float jumpMaxHeight;
+    [SerializeField] private float landRecoveryTime;
+
     [Header("Prefabs")]
     [SerializeField] private GameObject trunkPrefab;
     [SerializeField] private GameObject bombPrefab;
@@ -80,7 +84,7 @@ public class Ninja : Enemy
         Destroy(arrow.transform.GetChild(0).GetChild(1).gameObject);
         Destroy(arrow.transform.GetChild(1).gameObject);
         //arrow.GetComponent<MeshRenderer>().enabled = true;
-        Destroy(gameObject); //Mata al ninja
+        Destroy(gameObject); //No se debe matar al ninja, reposicionarlo y reusarlo. Solo que ya sin la vida extra.
         yield return new WaitForSeconds(2f);
         Destroy(newTrunk);
         canMove = true;

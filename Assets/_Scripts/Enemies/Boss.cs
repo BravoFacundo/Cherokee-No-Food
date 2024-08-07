@@ -4,12 +4,16 @@ using UnityEngine;
 
 public class Boss : Enemy
 {
+    [Header("Configuration")]
+    [SerializeField] private float jumpMaxHeight;
+    [SerializeField] private float landRecoveryTime;
+
     [Header("Prefabs")]
     [SerializeField] private GameObject bombPrefab;
     [SerializeField] private GameObject knifePrefab;
     [SerializeField] private GameObject landSmokePrefab;
 
-    private bool isGroundedLockk = false;
+    private bool _isGroundedLock = false;
 
     public override void Start()
     {
@@ -21,14 +25,8 @@ public class Boss : Enemy
     {
         base.Update();
 
-        if (isGrounded && !isGroundedLockk)
-        {
-            isGroundedLockk = true;
-            Debug.Log("bum");
-            var ar = new Vector3(transform.position.x, 0, transform.position.z);
-            Instantiate(landSmokePrefab, ar, Quaternion.identity);
-        }
-        else if (!isGrounded) isGroundedLockk = false;
+        if (isGrounded && !_isGroundedLock) StartCoroutine(nameof(BossLand));
+        else if (!isGrounded) _isGroundedLock = false;
     }
 
     private void OnTriggerEnter(Collider col)
@@ -106,19 +104,30 @@ public class Boss : Enemy
                         yield return new WaitForSeconds(3f);
                     }
                     break;
-
             }
         }
-
     }
 
     private IEnumerator BossSpawn()
     {
-        yield return new WaitForSeconds(2.5f);
+        rb.AddForce(2f * jumpForce * Vector3.up, ForceMode.Impulse);
+        yield return new WaitForSeconds(.3f);
+        levitate = true;
+        yield return new WaitForSeconds(2f);
         canMove = false;
         levitate = false;
-        yield return new WaitForSeconds(2.5f);
+    }
+
+    private IEnumerator BossLand()
+    {
+        _isGroundedLock = true;
+        animator.SetTrigger("isLanding");
+        var ar = new Vector3(transform.position.x, 0, transform.position.z);
+        Instantiate(landSmokePrefab, ar, Quaternion.identity);
+        yield return new WaitForSeconds(2f);
         canMove = true;
+        animator.SetTrigger("isRunning");
         StartCoroutine(nameof(BossDodge));
     }
+
 }

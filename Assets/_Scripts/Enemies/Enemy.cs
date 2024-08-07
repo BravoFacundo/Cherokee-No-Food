@@ -25,29 +25,33 @@ public class Enemy : MonoBehaviour
     private bool isGroundedLock = false;
 
     [Header("References")]
-    [HideInInspector] public PlayerController playerController;
+    [HideInInspector] public PlayerController playerController; //Se usa?
     [HideInInspector] public ParticleManager particleController;
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;
-    private Camera cam;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody>();
+        animator = GetComponentInChildren<Animator>();
+
+        particles = transform.Find("Particles").gameObject;
+        groundMask = LayerMask.GetMask("Ground");
+    }
 
     public virtual void Start()
     {
-        rb = GetComponent<Rigidbody>();
-        cam = Camera.main;
-        animator = GetComponentInChildren<Animator>();
-        groundMask = LayerMask.GetMask("Ground");
-        particles = transform.Find("Particles").gameObject;
         moveForward = true;
+        SetParticleEmission(false);
     }
 
     public virtual void Update()
     {
         isGrounded = Physics.CheckSphere(transform.position, .1f , groundMask);
 
-        if (isGrounded && !isGroundedLock) SetParticleEmition(true);
-        else if (!isGrounded && isGroundedLock) SetParticleEmition(false);
+        if (isGrounded && !isGroundedLock) SetParticleEmission(true);
+        else if (!isGrounded && isGroundedLock) SetParticleEmission(false);
 
         if (canMove) animator.SetBool("EnemyIdle", false);
         else animator.SetBool("EnemyIdle", true);
@@ -77,7 +81,7 @@ public class Enemy : MonoBehaviour
             if (moveLeft) rb.AddForce(50f * moveSpeed * -Vector3.right, ForceMode.Force);
 
             //Speed Limit
-            Vector3 flatVel = new Vector3(rb.velocity.x, 0f, rb.velocity.z);
+            Vector3 flatVel = new(rb.velocity.x, 0f, rb.velocity.z);
             if (flatVel.magnitude > moveSpeed)
             {
                 Vector3 limitedVel = flatVel.normalized * moveSpeed;
@@ -122,7 +126,7 @@ public class Enemy : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void SetParticleEmition(bool b)
+    public void SetParticleEmission(bool b)
     {
         isGroundedLock = !isGroundedLock;
         

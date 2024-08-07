@@ -45,8 +45,7 @@ public class Sumo : Enemy
     private IEnumerator SumoDodge()
     {
         while (!moveCenter)
-        {            
-
+        {
             string[] actions = { "MoveForward", "MoveRight", "MoveLeft", "Jump" };
             int random = Random.Range(0, actions.Length);
             float moveTime = Random.Range(3f, 6f);

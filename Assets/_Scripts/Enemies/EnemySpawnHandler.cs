@@ -21,18 +21,12 @@ public class EnemySpawnHandler : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] List<GameObject> enemiesPrefabs;
 
-    // Limitaciones de spawneo, debido a las barras de enemigos
-    // Max Enemies = 15 | Max Enemies (Only Bosses) = 5
-    // Up to 10 enemies | Max 2 Bosses
-    // Up to 5 enemies + 3 Bosses = Highly unrecommended (Ugly Bar Layout)
-
     private IEnumerator Start()
     {
         player = Camera.main.transform;
 
         yield return new WaitForSeconds(startDelay);
-        if (spawnThisAtStart != null) StartCoroutine(SpawnEnemi());
-        
+        if (spawnThisAtStart != null) StartCoroutine(SpawnEnemi());        
     }
 
     private IEnumerator SpawnEnemi()

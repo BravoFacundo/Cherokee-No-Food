@@ -4,19 +4,19 @@ using UnityEngine;
 
 public class PlayerShoot : MonoBehaviour
 {   
-    private enum ShootMode { ShootFromBowPosition, ShootFromInputPosition, ShootToHUDPosition }
+    private enum ShootMode { BowPosition, InputPosition, HUDPosition }
 
     [Header("Configuration")]
     [SerializeField] private ShootMode shootMode; 
-    public float shootForce; 
-    private float shootForceSave;
+    public float shootForce;
+    private float defaultShootForce;
     [SerializeField] private float shootChargeSpeed, shootMaxCharge, shootReloadTime;
     private ForceMode forceMode;
 
     [Header("Debug")]
     public bool isReloading;
     private bool isCharging;
-    [SerializeField] private float chargeTime;
+    [SerializeField] private float currentChargeTime;
 
     [Header("Bow Rotation")]
     [SerializeField] private float maxBowYRotation;
@@ -24,161 +24,97 @@ public class PlayerShoot : MonoBehaviour
     private float bowYRotation;
 
     [Header("References")]
-    [SerializeField] private PlayerController playerController;
-    [SerializeField] private ParticleManager particleController;
+    [SerializeField] private ParticleManager particleManager;
     [SerializeField] private GameObject bowObject;
+
+    [Header("Local References")]
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private GameObject enemyAttack;
     private Animator bowAnimator;
     private Camera cam;
-    private GameObject enemyAttack;
 
     [Header("Prefabs")]
     [SerializeField] private Rigidbody arrowPrefab;
     [SerializeField] private Rigidbody arrowForkPrefab;
 
-    void Start()
+    private void Awake()
     {
         cam = Camera.main;
-
-        enemyAttack = transform.parent.GetChild(2).gameObject;
-
         bowAnimator = bowObject.GetComponent<Animator>();
+    }
+
+    void Start()
+    {
         bowAnimator.SetFloat("Arrow_ChargeSpeed", 1 / shootMaxCharge);
         bowAnimator.SetFloat("Arrow_ReloadSpeed", 1 / shootReloadTime);
-
-        shootForceSave = shootForce;
+        defaultShootForce = shootForce;
         isReloading = false;
     }
 
-
     void Update()
     {
+        Mouse_Inputs();
+        RotateBowByMouseXPosition();
+    }
+
+    private void Mouse_Inputs()
+    {
         if (Input.GetMouseButtonDown(2)) bowAnimator.SetTrigger("Arrow_Reload");
-        if (Input.GetMouseButtonDown(1)) 
+        if (Input.GetMouseButtonDown(1))
         {
             var f = bowAnimator.GetFloat("Arrow_ChargeSpeed");
             bowAnimator.SetFloat("Arrow_ChargeSpeed", f * -1);
         }
 
-        if (Input.GetMouseButtonDown(0))
-        {            
-            //print("Start Charging Shoot");
-            chargeTime = 0; 
-            bowAnimator.SetBool("Arrow_Charge", true);
-
-        }
-        if (Input.GetMouseButton(0))
-        {            
-            isCharging = true;
-            //bowAnimator.SetTrigger("Arrow_Charge");
-            bowAnimator.SetBool("Arrow_Charge", true);
-            if (isCharging && !isReloading && chargeTime < shootMaxCharge)
-            {
-                chargeTime += Time.deltaTime * shootChargeSpeed;
-                //bowAnimator.SetBool("Arrow_Charge", true);
-            }
-        }
-
-        if (Input.GetMouseButtonUp(0))
-        {            
-            if (chargeTime <= shootMaxCharge * 0.5)
-            {
-                //print("No Shoot");
-                chargeTime = 0;
-                bowAnimator.SetBool("Arrow_Charge", false);
-                bowAnimator.SetTrigger("Arrow_CancelCharge");
-            }
-            else
-            if (chargeTime >= shootMaxCharge * 0.5 && chargeTime <= shootMaxCharge * 0.75)
-            {
-                //print("Weak Shoot");
-                StartCoroutine(nameof(ShootArrow), 1);
-            }
-            else
-            if (chargeTime >= shootMaxCharge * 0.75 && chargeTime <= shootMaxCharge + 1)
-            {
-                //print("Hard Shoot");
-                StartCoroutine(nameof(ShootArrow), 2);
-            }
-
-            bowAnimator.SetBool("Arrow_Charge", false);
-        }
-
-        RotateBowByMouseXPosition();
+        if (Input.GetMouseButtonDown(0)) StartCharging();
+        if (Input.GetMouseButton(0)) ContinueCharging();
+        if (Input.GetMouseButtonUp(0)) FinishCharging();
     }
 
-    IEnumerator ShootArrow(int shootDamage)
+    private void StartCharging()
+    {
+        currentChargeTime = 0;
+        bowAnimator.SetBool("Arrow_Charge", true);
+    }
+    private void ContinueCharging()
+    {
+        isCharging = true;
+        bowAnimator.SetBool("Arrow_Charge", true);
+        if (isCharging && !isReloading && currentChargeTime < shootMaxCharge)
+        {
+            currentChargeTime += Time.deltaTime * shootChargeSpeed;
+        }
+    }
+    private void FinishCharging()
+    {
+        if (currentChargeTime <= shootMaxCharge * 0.50) CancelCharging();
+        else 
+        if (currentChargeTime >= shootMaxCharge * 0.50 && currentChargeTime <= shootMaxCharge * 0.75) StartCoroutine(nameof(ShootArrow), 1);
+        else 
+        if (currentChargeTime >= shootMaxCharge * 0.75 && currentChargeTime <= shootMaxCharge + 1.00) StartCoroutine(nameof(ShootArrow), 2);
+
+        bowAnimator.SetBool("Arrow_Charge", false);
+    }
+
+    private void CancelCharging()
+    {
+        currentChargeTime = 0;
+        bowAnimator.SetBool("Arrow_Charge", false);
+        bowAnimator.SetTrigger("Arrow_CancelCharge");
+    }
+    private void PrepareToShoot()
     {
         isCharging = false;
-        chargeTime = 0;
+        currentChargeTime = 0;
         isReloading = true;
 
-        //Bow Animation
         bowAnimator.SetBool("Arrow_Charge", false);
         bowAnimator.SetTrigger("Arrow_Shoot");
-
-        //Shoot Direction
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        Quaternion rotation = Quaternion.LookRotation(ray.direction);
-
-        //Shoot Stats
-        switch (shootDamage)
-        {
-            case 1:
-
-                break;
-            case 2:
-                shootForce = shootForce * 1.25f;
-                break;
-        }
-
-        //Check Shoot Mode
-        if (enemyAttack.GetComponent<SpriteRenderer>().sprite != null)
-        {
-            if (CheckAlpha()) shootMode = ShootMode.ShootFromInputPosition;
-            else shootMode = ShootMode.ShootToHUDPosition;
-        }
-        else shootMode = ShootMode.ShootFromBowPosition;
-
-        //Shoot Mode
-        Rigidbody arrow = arrowPrefab;
-        Vector3 spawnPosition = Vector3.zero;
-
-        if (shootMode != ShootMode.ShootToHUDPosition)
-        {
-            if (shootMode == ShootMode.ShootFromBowPosition)
-            {
-                Vector2 pivotPosition = new Vector2(
-                 bowObject.transform.position.x - (bowObject.GetComponent<RectTransform>().sizeDelta.x * 0.5f),
-                 bowObject.transform.position.y + (bowObject.GetComponent<RectTransform>().sizeDelta.y * 0.5f));
-                spawnPosition = cam.ScreenToWorldPoint(new Vector3(pivotPosition.x, pivotPosition.y, cam.nearClipPlane + .6f));
-            }
-            else if (shootMode == ShootMode.ShootFromInputPosition)
-            {
-                spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .6f));
-            }
-
-            //Shoot Instance        
-            Rigidbody newArrow = Instantiate(arrow, spawnPosition, rotation) as Rigidbody;
-            newArrow.AddForce(ray.direction * shootForce, ForceMode.VelocityChange);
-            newArrow.transform.Rotate(0, 0, Random.Range(0, 180), Space.Self);
-        }
-        else
-        {
-            arrow = arrowForkPrefab;
-            spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .9f));
-
-            Rigidbody newArrow = Instantiate(arrow, spawnPosition, rotation) as Rigidbody;
-            newArrow.transform.Rotate(0, 0, Random.Range(0, 180), Space.Self);
-            newArrow.isKinematic = true;
-            Destroy(newArrow.gameObject, .5f);
-
-            particleController.ImpactExplosion(spawnPosition + new Vector3(0,0,-.1f) , Quaternion.identity, false);
-            StartCoroutine(playerController.StopReceivingDamage());
-        }        
-
-        yield return new WaitForSeconds(shootReloadTime);
+    }
+    private void ReloadAfterShoot()
+    {
         bowAnimator.SetTrigger("Arrow_Reload");
-        shootForce = shootForceSave;
+        shootForce = defaultShootForce;
         isReloading = false;
     }
 
@@ -189,16 +125,98 @@ public class PlayerShoot : MonoBehaviour
         bowObject.transform.rotation = Quaternion.Euler(new Vector3(0, bowYRotation, 0));
     }
 
-    private bool CheckAlpha()
+    IEnumerator ShootArrow(int shootDamage)
+    {
+        PrepareToShoot();
+
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        Quaternion rotation = Quaternion.LookRotation(ray.direction);
+
+        ApplyShootDamageMultiplier(shootDamage);
+
+        SetShootMode();
+
+        Vector3 spawnPosition = CalculateSpawnPosition();
+
+        CreateArrow(rotation, spawnPosition);
+
+        yield return new WaitForSeconds(shootReloadTime);
+        ReloadAfterShoot();
+    }
+
+    private void ApplyShootDamageMultiplier(int shootDamage)
+    {
+        if (shootDamage == 2)
+        {
+            shootForce *= 1.25f;
+        }
+    }
+
+    private void SetShootMode()
+    {
+        if (enemyAttack.GetComponent<SpriteRenderer>().sprite != null)
+        {
+            shootMode = CheckSpriteAlpha() ? ShootMode.InputPosition : ShootMode.HUDPosition;
+        }
+        else
+        {
+            shootMode = ShootMode.BowPosition;
+        }
+    }
+
+    private Vector3 CalculateSpawnPosition()
+    {
+        Vector3 spawnPosition = Vector3.zero;
+
+        if (shootMode == ShootMode.BowPosition)
+        {
+            Vector2 pivotPosition = new Vector2(
+                bowObject.transform.position.x - (bowObject.GetComponent<RectTransform>().sizeDelta.x * 0.5f),
+                bowObject.transform.position.y + (bowObject.GetComponent<RectTransform>().sizeDelta.y * 0.5f));
+            spawnPosition = cam.ScreenToWorldPoint(new Vector3(pivotPosition.x, pivotPosition.y, cam.nearClipPlane + .6f));
+        }
+        else if (shootMode == ShootMode.InputPosition)
+        {
+            spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .6f));
+        }
+        else if (shootMode == ShootMode.HUDPosition)
+        {
+            spawnPosition = cam.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, cam.nearClipPlane + .9f));
+        }
+
+        return spawnPosition;
+    }
+
+    private Rigidbody CreateArrow(Quaternion rotation, Vector3 spawnPosition)
+    {
+        Rigidbody arrow = (shootMode == ShootMode.HUDPosition) ? arrowForkPrefab : arrowPrefab;
+        Rigidbody newArrow = Instantiate(arrow, spawnPosition, rotation);
+        newArrow.transform.Rotate(0, 0, Random.Range(0, 180), Space.Self);
+
+        if (shootMode == ShootMode.HUDPosition)
+        {
+            newArrow.isKinematic = true;
+            Destroy(newArrow.gameObject, .5f);
+            particleManager.ImpactExplosion(spawnPosition + new Vector3(0, 0, -.1f), Quaternion.identity, false);
+            StartCoroutine(playerController.StopReceivingDamage());
+        }
+        else
+        {
+            newArrow.AddForce(rotation * Vector3.forward * shootForce, ForceMode.VelocityChange);
+        }
+
+        return newArrow;
+    }
+
+    private bool CheckSpriteAlpha()
     {
         Texture2D attackTexture = (Texture2D)enemyAttack.GetComponent<SpriteRenderer>().sprite.texture;
-        
-        //Convert hit coordinates
+        if (attackTexture == null) return false;
+
         Vector2 pixelUV = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
         int uvX = (int)pixelUV.x;
         int uvY = (int)pixelUV.y;
-
-        //Alpha Check                    
+        
         Color hitColor = attackTexture.GetPixel(uvX, uvY);
         if (hitColor.a > 0.05)
         {
@@ -210,9 +228,4 @@ public class PlayerShoot : MonoBehaviour
         }
     }
 
-
 }
-
-
-
-    

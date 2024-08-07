@@ -48,8 +48,8 @@ public class UIManager : MonoBehaviour
     private IEnumerator Start()
     {
         yield return new WaitForSeconds(1.5f);
-        GameObject newPopup = Instantiate(popupNewLevelPrefab, popupsParent.transform);
-        newPopup.GetComponent<PopupNewLevel>().text = "Final Level";
+        //GameObject newPopup = Instantiate(popupNewLevelPrefab, popupsParent.transform);
+        //newPopup.GetComponent<PopupNewLevel>().text = "Final Level";
     }
 
     public void InstantiateBars(int enemyCount)
