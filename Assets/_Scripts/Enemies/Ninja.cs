@@ -74,7 +74,7 @@ public class Ninja : Enemy
     public IEnumerator NinjaHit(GameObject arrow)
     {
         canMove = false;
-        particleController.ImpactExplosion(arrow.transform.position, transform.rotation);
+        particleManager.ImpactExplosion(arrow.transform.position, transform.rotation);
         GameObject newTrunk = Instantiate(trunkPrefab, arrow.transform.position, transform.rotation);
         arrow.GetComponent<Rigidbody>().isKinematic = true;
         arrow.transform.parent = newTrunk.transform;

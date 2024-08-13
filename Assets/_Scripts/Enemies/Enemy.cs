@@ -26,7 +26,7 @@ public class Enemy : MonoBehaviour
 
     [Header("References")]
     [HideInInspector] public PlayerController playerController; //Se usa?
-    [HideInInspector] public ParticleManager particleController;
+    [HideInInspector] public ParticleManager particleManager;
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;
@@ -110,7 +110,7 @@ public class Enemy : MonoBehaviour
     public IEnumerator EnemyHit(GameObject arrow)
     {
         canMove = false;
-        particleController.ImpactExplosion(arrow.transform.position, transform.rotation);
+        particleManager.ImpactExplosion(arrow.transform.position, transform.rotation);
         Destroy(arrow);
         yield return new WaitForSeconds(1f);
         canMove = true;
@@ -119,7 +119,7 @@ public class Enemy : MonoBehaviour
     public IEnumerator EnemyDeath(GameObject arrow)
     {
         canMove = false;
-        particleController.ImpactExplosion(arrow.transform.position, transform.rotation);
+        particleManager.ImpactExplosion(arrow.transform.position + new Vector3(0,0,-.1f), transform.rotation);
         Destroy(arrow);
         animator.SetTrigger("EnemyDeath");
         yield return new WaitForSeconds(2f);

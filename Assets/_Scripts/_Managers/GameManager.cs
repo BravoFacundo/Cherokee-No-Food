@@ -112,7 +112,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator Tutorial_Part1()
     {
-        Debug.Log("Tutorial Activated");
+        //Debug.Log("Tutorial Activated");
 
         //enemySpawHandler.SpawnEnemy(1, new Vector3(0, 0, 11));
         //enemySpawHandler.SpawnEnemy(1, new Vector3(-1.29f, 0, 11.75f));

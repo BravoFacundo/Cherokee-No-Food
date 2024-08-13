@@ -55,7 +55,7 @@ public class EnemySpawnHandler : MonoBehaviour
     {
         var newEnemyScript = newEnemy.GetComponent<Enemy>();
         newEnemyScript.playerController = playerController;
-        newEnemyScript.particleController = particleController;        
+        newEnemyScript.particleManager = particleController;        
         newEnemy.GetComponent<LookAtCamera>().target = player;
 
         gameManager.AddNewEnemy(newEnemy, enemyToSpawn);
