@@ -138,7 +138,7 @@ public class PlayerShoot : MonoBehaviour
         SetShootMode(enemySpriteRenderer);
 
         Vector3 spawnPosition = CalculateSpawnPosition();
-        CreateArrow(rotation, spawnPosition);
+        CreateArrow(rotation, spawnPosition, shootDamage);
 
         yield return new WaitForSeconds(shootReloadTime);
         ReloadShoot();
@@ -182,11 +182,12 @@ public class PlayerShoot : MonoBehaviour
         return spawnPosition;
     }
 
-    private Rigidbody CreateArrow(Quaternion rotation, Vector3 spawnPosition)
+    private Rigidbody CreateArrow(Quaternion rotation, Vector3 spawnPosition, float damage)
     {
         Rigidbody arrow = (shootMode == ShootMode.HUDPosition) ? arrowForkPrefab : arrowPrefab;
         Rigidbody newArrow = Instantiate(arrow, spawnPosition, rotation);
         newArrow.transform.Rotate(0, 0, Random.Range(0, 180), Space.Self);
+        newArrow.GetComponent<ArrowData>().arrowDamage = damage;
 
         if (shootMode == ShootMode.HUDPosition)
         {

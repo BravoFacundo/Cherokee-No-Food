@@ -2,27 +2,48 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum EnemyState
+{
+    Idle,
+    MovingForward,
+    MovingLeft,
+    MovingRight,
+    MovingCenter,
+    Jump,
+    
+    EvaluateNextAction,
+    
+    Attack,
+    JumpAttack,
+    
+    Hit,
+    Death
+}
+
 public class Enemy : MonoBehaviour
 {
+    [Header("States")]
+    public EnemyState currentState;
+    public List<EnemyState> enemyEvadeActions;
+    [HideInInspector] public bool isStateFirstEntry;
+
     [Header ("Stats")]
-    public int hp = 1;
+    public float hp = 2;
     public float moveSpeed = 5f;
     public float jumpForce = 5f;
+    public Vector2 evadeSpeed;
 
     [Header("Move Variables")]
-    public bool canMove;
-    public bool moveForward, moveRight, moveLeft, moveCenter;
-    public bool levitate;
-    [HideInInspector] public bool levitateLock = false;
+    private bool canMove;
+    private bool? moveForward, moveLeft;
+    private bool moveCenter, levitate;
+    [HideInInspector] public bool isLevitating = false;
 
-    [Header("Debug Variables")]
-    public bool isColliding;
-    
     [Header("Ground Check")]    
     public bool isGrounded;
-    private GameObject groundCheck;
     public LayerMask groundMask;
-    private bool isGroundedLock = false;
+    private bool wasGrounded = false;
+    private GameObject groundCheck;
 
     [Header("References")]
     [HideInInspector] public PlayerController playerController; //Se usa?
@@ -42,93 +63,270 @@ public class Enemy : MonoBehaviour
 
     public virtual void Start()
     {
-        moveForward = true;
+        canMove = true;
+        moveLeft = null;
+        ChangeState(EnemyState.MovingForward);
         SetParticleEmission(false);
     }
 
     public virtual void Update()
     {
-        isGrounded = Physics.CheckSphere(transform.position, .1f , groundMask);
+        GroundDetection();
+        CheckParticleEmision();
 
-        if (isGrounded && !isGroundedLock) SetParticleEmission(true);
-        else if (!isGrounded && isGroundedLock) SetParticleEmission(false);
-
-        if (canMove) animator.SetBool("EnemyIdle", false);
-        else animator.SetBool("EnemyIdle", true);
+        EnemyStateMachine();
     }
+
+    public void ChangeState(EnemyState newState)
+    {
+        isStateFirstEntry = true;
+        currentState = newState;
+    }
+    private void EnemyStateMachine()
+    {
+        switch (currentState)
+        {
+            case EnemyState.EvaluateNextAction:
+                EnemyEvaluateNextAction();
+                break;
+
+            case EnemyState.Idle:
+                EnemyIdle();
+                break;
+            case EnemyState.MovingForward:
+                EnemyMoveForward();
+                break;
+            case EnemyState.MovingLeft:
+                EnemyMoveLeft();
+                break;
+            case EnemyState.MovingRight:
+                EnemyMoveRight();
+                break;
+            case EnemyState.MovingCenter:
+                EnemyMoveCenter();
+                break;
+            case EnemyState.Jump:
+                EnemyJump();
+                break;            
+
+            case EnemyState.Attack:
+                EnemyAttack();
+                break;
+            case EnemyState.JumpAttack:
+                EnemyJumpAttack();
+                break;
+
+            case EnemyState.Hit:
+                EnemyHit();
+                break;
+            case EnemyState.Death:
+                EnemyDeath();
+                break;
+        }
+    }
+
+    public void EnemyEvaluateNextAction()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+            ChangeState(enemyEvadeActions[Random.Range(0, enemyEvadeActions.Count)]);
+            float recallState = Random.Range(evadeSpeed.x, evadeSpeed.y);
+            StartCoroutine(RecallEvaluateNextActionState(recallState));
+        }
+    }
+    private IEnumerator RecallEvaluateNextActionState(float recallState)
+    {
+        yield return new WaitForSeconds(recallState);
+        if (currentState != EnemyState.MovingCenter ||
+            currentState != EnemyState.Jump ||
+            currentState != EnemyState.JumpAttack)
+            ChangeState(EnemyState.EvaluateNextAction);
+    }
+
+    public void EnemyIdle()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+
+            moveForward = null;            
+            animator.SetBool("EnemyIdle", true);
+        }
+    }
+    public void EnemyMoveForward()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+            
+            moveForward = true;            
+            animator.SetBool("EnemyIdle", false);
+        }
+    }
+    public void EnemyMoveLeft()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+            
+            moveForward = true; 
+            moveLeft = true;
+            animator.SetBool("EnemyIdle", false);
+        }
+    }
+    public void EnemyMoveRight()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+            
+            moveForward = true; 
+            moveLeft = false;
+            animator.SetBool("EnemyIdle", false);
+        }
+    }
+    
+    public void EnemyMoveCenter()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;            
+            moveForward = true;
+        }
+
+        if (transform.position.x > 0.0f)
+        {
+            moveLeft = false;
+        }
+        if (transform.position.x < 0.0f)
+        {
+            moveLeft = false;
+        }
+        if (Mathf.Abs(transform.position.x) < 0.01f)
+        {
+            moveLeft = null;
+        }
+    }
+    
+    public virtual void EnemyJump() { }
+    public virtual void EnemyAttack() { }
+    public virtual void EnemyJumpAttack() { }
+
+    public void EvaluateDamage(float damage)
+    {
+        hp -= damage;
+        if (hp <= 0) ChangeState(EnemyState.Death);
+        else ChangeState(EnemyState.Hit);
+    }
+    public void HandleDamageAnimation(Collider col)
+    {
+        particleManager.ImpactExplosion(col.transform.position + new Vector3(0, 0, -.1f), transform.rotation);
+        Destroy(col);
+    }
+
+    public virtual void EnemyHit()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+            StartCoroutine(nameof(EnemyHitAnimation));
+        }
+    }
+    public IEnumerator EnemyHitAnimation()
+    {
+        moveForward = null;
+        yield return new WaitForSeconds(1f);
+        moveForward = true;
+    }
+
+    public virtual void EnemyDeath()
+    {
+        if (isStateFirstEntry)
+        {
+            isStateFirstEntry = false;
+            StartCoroutine(nameof(EnemyDeathAnimation));
+        }
+    }
+    private IEnumerator EnemyDeathAnimation()
+    {
+        moveForward = null;
+        animator.SetTrigger("EnemyDeath");
+        yield return new WaitForSeconds(Utilities.GetAnimationClipDurationByAction(animator, "Death"));
+        Destroy(gameObject);
+    }
+
+    //----------------------------------------------------------------------------------------------------------------------------
+
+    protected virtual void OnTriggerEnter(Collider col)
+    {
+        if (col.CompareTag("Arrow"))
+        {
+            EvaluateDamage(col.GetComponent<ArrowData>().arrowDamage);
+            HandleDamageAnimation(col);
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------------------------------------
 
     public virtual void FixedUpdate()
     {
+        HandleMovement();
+    }
+
+    private void HandleMovement()
+    {
         if (canMove)
         {
-            if (moveCenter) 
-            {
-                if (transform.position.x > 0.0f) moveLeft = true;
-                if (transform.position.x < 0.0f) moveRight = true;
-                if (transform.position.x > -0.01f && transform.position.x < 0.01f)
-                {
-                    moveCenter = false; moveLeft = false; moveRight = false;
-                    rb.velocity = new Vector3(0, rb.velocity.y, rb.velocity.z);
-                }
-            }            
-
-            //Cuando se esta siendo atacado, centrar al enemigo a -0.9 o 0.9 dependiendo del lado del que venga
-            //Esto es para que el jugador sepa que se acerca otro enemigo. Y tenga feedback de su game over
-
-            //Base Movement
-            if (moveForward) rb.AddForce(50f * moveSpeed * -Vector3.forward, ForceMode.Force);
-            if (moveRight) rb.AddForce(50f * moveSpeed * Vector3.right, ForceMode.Force);
-            if (moveLeft) rb.AddForce(50f * moveSpeed * -Vector3.right, ForceMode.Force);
-
-            //Speed Limit
-            Vector3 flatVel = new(rb.velocity.x, 0f, rb.velocity.z);
-            if (flatVel.magnitude > moveSpeed)
-            {
-                Vector3 limitedVel = flatVel.normalized * moveSpeed;
-                rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
-            }
+            if (moveForward == true) MoveForward(1);
+            else if (moveForward == false) MoveForward(-1);
+            if (moveLeft == true) MoveHorizontal(1);
+            else if (moveLeft == false) MoveHorizontal(-1);
         }
-        if (levitate && !levitateLock)
+        HandleLevitate();
+        HandleSpeedLimit();
+    }
+
+    private void MoveForward(int direction) => 
+        rb.AddForce(50f * moveSpeed * (-Vector3.forward * direction), ForceMode.Force);
+    private void MoveHorizontal(int direction) => 
+        rb.AddForce(50f * moveSpeed * (Vector3.right * direction), ForceMode.Force);
+
+    private void HandleSpeedLimit()
+    {
+        Vector3 flatVel = new(rb.velocity.x, 0f, rb.velocity.z);
+        if (flatVel.magnitude > moveSpeed)
         {
-            levitateLock = true;
+            Vector3 limitedVel = flatVel.normalized * moveSpeed;
+            rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
+        }
+    }
+    private void HandleLevitate()
+    {
+        if (levitate && !isLevitating)
+        {
+            isLevitating = true;
             rb.constraints = RigidbodyConstraints.FreezePositionY;
         }
-        else if (!levitate && levitateLock)
+        else if (!levitate && isLevitating)
         {
-            levitateLock = false;
+            isLevitating = false;
             rb.constraints = RigidbodyConstraints.None;
             rb.constraints = RigidbodyConstraints.FreezeRotation;
         }
     }
 
-    public void EnemyMoveCenter()
-    {
-        moveLeft = false; moveRight = false;
-        moveCenter = true;
-    }
+    //----------------------------------------------------------------------------------------------------------------------------
 
-    public IEnumerator EnemyHit(GameObject arrow)
+    public void GroundDetection() => isGrounded = Physics.CheckSphere(transform.position, .1f, groundMask);
+    public void CheckParticleEmision()
     {
-        canMove = false;
-        particleManager.ImpactExplosion(arrow.transform.position, transform.rotation);
-        Destroy(arrow);
-        yield return new WaitForSeconds(1f);
-        canMove = true;
-        isColliding = false;
+        if (isGrounded && !wasGrounded) SetParticleEmission(true);
+        else if (!isGrounded && wasGrounded) SetParticleEmission(false);
     }
-    public IEnumerator EnemyDeath(GameObject arrow)
-    {
-        canMove = false;
-        particleManager.ImpactExplosion(arrow.transform.position + new Vector3(0,0,-.1f), transform.rotation);
-        Destroy(arrow);
-        animator.SetTrigger("EnemyDeath");
-        yield return new WaitForSeconds(2f);
-        Destroy(gameObject);
-    }
-
     public void SetParticleEmission(bool b)
     {
-        isGroundedLock = !isGroundedLock;
+        wasGrounded = !wasGrounded;
         
         ParticleSystem[] particleSystems = particles.GetComponentsInChildren<ParticleSystem>();
         foreach (ParticleSystem particleSystem in particleSystems)
