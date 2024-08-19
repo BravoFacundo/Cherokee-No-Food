@@ -4,6 +4,9 @@ using UnityEngine;
 
 public enum EnemyState
 {
+    AwaitNextAction,
+    EvaluateNextAction,
+    
     Idle,
     MovingForward,
     MovingLeft,
@@ -11,7 +14,6 @@ public enum EnemyState
     MovingCenter,
     Jump,
     
-    EvaluateNextAction,
     
     Attack,
     JumpAttack,
@@ -25,7 +27,6 @@ public class Enemy : MonoBehaviour
     [Header("States")]
     public EnemyState currentState;
     public List<EnemyState> enemyEvadeActions;
-    [HideInInspector] public bool isStateFirstEntry;
 
     [Header ("Stats")]
     public float hp = 2;
@@ -77,15 +78,13 @@ public class Enemy : MonoBehaviour
         EnemyStateMachine();
     }
 
-    public void ChangeState(EnemyState newState)
-    {
-        isStateFirstEntry = true;
-        currentState = newState;
-    }
+    public void ChangeState(EnemyState newState) => currentState = newState;
     private void EnemyStateMachine()
     {
         switch (currentState)
         {
+            case EnemyState.AwaitNextAction:
+                break;
             case EnemyState.EvaluateNextAction:
                 EnemyEvaluateNextAction();
                 break;
@@ -127,13 +126,9 @@ public class Enemy : MonoBehaviour
 
     public void EnemyEvaluateNextAction()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            ChangeState(enemyEvadeActions[Random.Range(0, enemyEvadeActions.Count)]);
-            float recallState = Random.Range(evadeSpeed.x, evadeSpeed.y);
-            StartCoroutine(RecallEvaluateNextActionState(recallState));
-        }
+        ChangeState(enemyEvadeActions[Random.Range(0, enemyEvadeActions.Count)]);
+        float recallState = Random.Range(evadeSpeed.x, evadeSpeed.y);
+        StartCoroutine(RecallEvaluateNextActionState(recallState));
     }
     private IEnumerator RecallEvaluateNextActionState(float recallState)
     {
@@ -146,54 +141,34 @@ public class Enemy : MonoBehaviour
 
     public void EnemyIdle()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-
-            moveForward = null;            
-            animator.SetBool("EnemyIdle", true);
-        }
+        moveForward = null;
+        animator.SetBool("EnemyIdle", true);
+        ChangeState(EnemyState.AwaitNextAction);
     }
     public void EnemyMoveForward()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            
-            moveForward = true;            
-            animator.SetBool("EnemyIdle", false);
-        }
+        moveForward = true;
+        animator.SetBool("EnemyIdle", false);
+        ChangeState(EnemyState.AwaitNextAction);
     }
     public void EnemyMoveLeft()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            
-            moveForward = true; 
-            moveLeft = true;
-            animator.SetBool("EnemyIdle", false);
-        }
+        moveForward = true;
+        moveLeft = true;
+        animator.SetBool("EnemyIdle", false);
+        ChangeState(EnemyState.AwaitNextAction);
     }
     public void EnemyMoveRight()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            
-            moveForward = true; 
-            moveLeft = false;
-            animator.SetBool("EnemyIdle", false);
-        }
+        moveForward = true;
+        moveLeft = false;
+        animator.SetBool("EnemyIdle", false);
+        ChangeState(EnemyState.AwaitNextAction);
     }
     
     public void EnemyMoveCenter()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;            
-            moveForward = true;
-        }
+        moveForward = true;
 
         if (transform.position.x > 0.0f)
         {
@@ -225,32 +200,18 @@ public class Enemy : MonoBehaviour
         Destroy(col);
     }
 
-    public virtual void EnemyHit()
-    {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            StartCoroutine(nameof(EnemyHitAnimation));
-        }
-    }
+    public virtual void EnemyHit() => StartCoroutine(nameof(EnemyHitAnimation));
     public IEnumerator EnemyHitAnimation()
     {
-        moveForward = null;
+        canMove = false;
         yield return new WaitForSeconds(1f);
-        moveForward = true;
+        canMove = true;
     }
 
-    public virtual void EnemyDeath()
-    {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            StartCoroutine(nameof(EnemyDeathAnimation));
-        }
-    }
+    public virtual void EnemyDeath() => StartCoroutine(nameof(EnemyDeathAnimation));
     private IEnumerator EnemyDeathAnimation()
     {
-        moveForward = null;
+        canMove = false;
         animator.SetTrigger("EnemyDeath");
         yield return new WaitForSeconds(Utilities.GetAnimationClipDurationByAction(animator, "Death"));
         Destroy(gameObject);

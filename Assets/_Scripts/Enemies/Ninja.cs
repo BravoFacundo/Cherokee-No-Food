@@ -39,11 +39,8 @@ public class Ninja : Enemy
 
     public override void EnemyAttack()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            StartCoroutine(nameof(NinjaAttack));
-        }
+        StartCoroutine(nameof(NinjaAttack));
+        ChangeState(EnemyState.AwaitNextAction);
     }
     private IEnumerator NinjaAttack()
     {
@@ -53,11 +50,8 @@ public class Ninja : Enemy
     }
     public override void EnemyJumpAttack()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            StartCoroutine(nameof(NinjaJumpAttack));
-        }
+        StartCoroutine(nameof(NinjaJumpAttack));
+        ChangeState(EnemyState.AwaitNextAction);
     }
     private IEnumerator NinjaJumpAttack()
     {
@@ -66,11 +60,8 @@ public class Ninja : Enemy
 
     public override void EnemyHit()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            StartCoroutine(nameof(NinjaHit));
-        }
+        StartCoroutine(nameof(NinjaHit));
+        ChangeState(EnemyState.AwaitNextAction);
     }
     private IEnumerator NinjaHit(GameObject arrow)
     {

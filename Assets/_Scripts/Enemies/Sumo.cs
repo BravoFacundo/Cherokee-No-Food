@@ -21,11 +21,8 @@ public class Sumo : Enemy
 
     public override void EnemyJump()
     {
-        if (isStateFirstEntry)
-        {
-            isStateFirstEntry = false;
-            StartCoroutine(nameof(SumoJump));
-        }
+        StartCoroutine(nameof(SumoJump));
+        ChangeState(EnemyState.AwaitNextAction);
     }
     private IEnumerator SumoJump()
     {
