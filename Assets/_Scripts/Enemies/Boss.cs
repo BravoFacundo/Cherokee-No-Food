@@ -21,13 +21,13 @@ public class Boss : Enemy
     public override void Start()
     {
         base.Start();
-        StartCoroutine(nameof(BossSpawn));
+        StartCoroutine(nameof(EnemySpawn));
     }
 
     public override void Update()
     {
         base.Update();
-        if (isGrounded && !_isGroundedLock) StartCoroutine(nameof(BossLand));
+        if (isGrounded && !_isGroundedLock) StartCoroutine(nameof(EnemyLand));
         else if (!isGrounded) _isGroundedLock = false;
     }
 
@@ -40,7 +40,7 @@ public class Boss : Enemy
         else if (col.name == "Trigger_45Meters") ChangeState(EnemyState.Attack);
     }
 
-    private IEnumerator BossSpawn()
+    private IEnumerator EnemySpawn()
     {
         rb.AddForce(2f * jumpForce * Vector3.up, ForceMode.Impulse);
         yield return new WaitForSeconds(.3f);
@@ -49,7 +49,7 @@ public class Boss : Enemy
         //canMove = false;
         //levitate = false;
     }
-    private IEnumerator BossLand()
+    private IEnumerator EnemyLand()
     {
         _isGroundedLock = true;
         animator.SetTrigger("isLanding");

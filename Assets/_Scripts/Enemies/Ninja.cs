@@ -39,10 +39,10 @@ public class Ninja : Enemy
 
     public override void EnemyAttack()
     {
-        StartCoroutine(nameof(NinjaAttack));
+        StartCoroutine(nameof(EnemyJumpAnimation));
         ChangeState(EnemyState.AwaitNextAction);
     }
-    private IEnumerator NinjaAttack()
+    private IEnumerator EnemyJumpAnimation()
     {
         GameObject newBomb = Instantiate(bombPrefab, transform.position, transform.rotation);
         Destroy(gameObject);
@@ -50,20 +50,20 @@ public class Ninja : Enemy
     }
     public override void EnemyJumpAttack()
     {
-        StartCoroutine(nameof(NinjaJumpAttack));
+        StartCoroutine(nameof(EnemyJumpAttackAnimation));
         ChangeState(EnemyState.AwaitNextAction);
     }
-    private IEnumerator NinjaJumpAttack()
+    private IEnumerator EnemyJumpAttackAnimation()
     {
         yield return new WaitForSeconds(2f);
     }
 
     public override void EnemyHit()
     {
-        StartCoroutine(nameof(NinjaHit));
+        StartCoroutine(nameof(EnemyHitAnimation));
         ChangeState(EnemyState.AwaitNextAction);
     }
-    private IEnumerator NinjaHit(GameObject arrow)
+    private IEnumerator EnemyHitAnimation(GameObject arrow)
     {
         //canMove = false;
         particleManager.ImpactExplosion(arrow.transform.position, transform.rotation);

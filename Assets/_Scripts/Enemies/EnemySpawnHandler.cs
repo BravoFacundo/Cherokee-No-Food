@@ -31,8 +31,8 @@ public class EnemySpawnHandler : MonoBehaviour
 
     private IEnumerator SpawnEnemi()
     {
-        yield return new WaitForSeconds(4f);
-        SpawnEnemy(1, doorSpawPoint);
+        yield return new WaitForSeconds(2f);
+        SpawnEnemy(2, doorSpawPoint);
     }
 
     public void SpawnEnemies(string enemiesToSpawn) => SpawnEnemies(enemiesToSpawn, 0);

@@ -19,16 +19,14 @@ public class Sumo : Enemy
         else if (col.name == "Trigger_45Meters") ChangeState(EnemyState.MovingCenter);
     }
 
-    public override void EnemyJump()
+    public override void EnemyJump() { if (!isJumping) StartCoroutine(nameof(EnemyJumpAnimation)); }
+    private IEnumerator EnemyJumpAnimation()
     {
-        StartCoroutine(nameof(SumoJump));
-        ChangeState(EnemyState.AwaitNextAction);
-    }
-    private IEnumerator SumoJump()
-    {
+        isJumping = true;
         rb.velocity = Vector3.zero;
         rb.AddForce(10f * jumpForce * Vector3.up, ForceMode.Impulse);
         yield return new WaitForSeconds(3f);
+        isJumping = false;
         ChangeState(EnemyState.EvaluateNextAction);
     }
 

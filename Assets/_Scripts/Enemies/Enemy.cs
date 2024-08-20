@@ -14,7 +14,6 @@ public enum EnemyState
     MovingCenter,
     Jump,
     
-    
     Attack,
     JumpAttack,
     
@@ -38,6 +37,7 @@ public class Enemy : MonoBehaviour
     private bool canMove;
     private bool? moveForward, moveLeft;
     private bool moveCenter, levitate;
+    [HideInInspector] public bool isJumping = false;
     [HideInInspector] public bool isLevitating = false;
 
     [Header("Ground Check")]    
@@ -169,21 +169,22 @@ public class Enemy : MonoBehaviour
     public void EnemyMoveCenter()
     {
         moveForward = true;
-
         if (transform.position.x > 0.0f)
         {
             moveLeft = false;
         }
         if (transform.position.x < 0.0f)
         {
-            moveLeft = false;
+            moveLeft = true;
         }
         if (Mathf.Abs(transform.position.x) < 0.01f)
         {
+            rb.velocity = new(0, rb.velocity.y, rb.velocity.z);
             moveLeft = null;
+            ChangeState(EnemyState.AwaitNextAction);
         }
     }
-    
+
     public virtual void EnemyJump() { }
     public virtual void EnemyAttack() { }
     public virtual void EnemyJumpAttack() { }
