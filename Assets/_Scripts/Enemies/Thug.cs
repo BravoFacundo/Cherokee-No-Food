@@ -10,6 +10,15 @@ public class Thug : Enemy
 
         if (col.name == "Trigger_05Meters") ChangeState(EnemyState.EvaluateNextAction);
         else if (col.name == "Trigger_45Meters") ChangeState(EnemyState.MovingCenter);
+        else if (col.name == "Player_Collision") ChangeState(EnemyState.Attack);
+    }
+
+    public override void EnemyAttack()
+    {
+        PlayerController playerController = currentCol.GetComponent<PlayerCollision>().playerController;
+        StartCoroutine(playerController.EnemyAttack(1, this.GetType().ToString(), gameObject));
+        Utilities.RepositionToObjectPool(gameObject);
+        this.SetActive(false);
     }
 }
 

@@ -34,21 +34,22 @@ public class Enemy : MonoBehaviour
     public Vector2 evadeSpeed;
 
     [Header("Move Variables")]
-    private bool canMove;
+    [HideInInspector] public bool canMove = true;
     private bool? moveForward, moveLeft;
     private bool moveCenter, levitate;
+
+    [Header("Move States")]
+    [HideInInspector] public bool isGrounded;
+    private bool wasGrounded = false;
+    private LayerMask groundMask;
     [HideInInspector] public bool isJumping = false;
     [HideInInspector] public bool isLevitating = false;
 
-    [Header("Ground Check")]    
-    public bool isGrounded;
-    public LayerMask groundMask;
-    private bool wasGrounded = false;
-    private GameObject groundCheck;
-
     [Header("References")]
-    [HideInInspector] public PlayerController playerController; //Se usa?
     [HideInInspector] public ParticleManager particleManager;
+    [HideInInspector] public Collider currentCol; 
+
+    [Header("Local References")]
     [HideInInspector] public Rigidbody rb;
     [HideInInspector] public Animator animator;
     [HideInInspector] public GameObject particles;
@@ -57,17 +58,16 @@ public class Enemy : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         animator = GetComponentInChildren<Animator>();
-
         particles = transform.Find("Particles").gameObject;
+
         groundMask = LayerMask.GetMask("Ground");
     }
 
     public virtual void Start()
     {
-        canMove = true;
-        moveLeft = null;
-        ChangeState(EnemyState.MovingForward);
+        SetMovement(true);
         SetParticleEmission(false);
+        ChangeState(EnemyState.MovingForward);
     }
 
     public virtual void Update()
@@ -145,27 +145,10 @@ public class Enemy : MonoBehaviour
         animator.SetBool("EnemyIdle", true);
         ChangeState(EnemyState.AwaitNextAction);
     }
-    public void EnemyMoveForward()
-    {
-        moveForward = true;
-        animator.SetBool("EnemyIdle", false);
-        ChangeState(EnemyState.AwaitNextAction);
-    }
-    public void EnemyMoveLeft()
-    {
-        moveForward = true;
-        moveLeft = true;
-        animator.SetBool("EnemyIdle", false);
-        ChangeState(EnemyState.AwaitNextAction);
-    }
-    public void EnemyMoveRight()
-    {
-        moveForward = true;
-        moveLeft = false;
-        animator.SetBool("EnemyIdle", false);
-        ChangeState(EnemyState.AwaitNextAction);
-    }
-    
+    public void EnemyMoveForward() => SetMovement(true, null);
+    public void EnemyMoveLeft() => SetMovement(true, true);
+    public void EnemyMoveRight() => SetMovement(true, false);
+
     public void EnemyMoveCenter()
     {
         moveForward = true;
@@ -215,18 +198,28 @@ public class Enemy : MonoBehaviour
         canMove = false;
         animator.SetTrigger("EnemyDeath");
         yield return new WaitForSeconds(Utilities.GetAnimationClipDurationByAction(animator, "Death"));
+        EnemyDelete();
+    }
+    public void EnemyDelete()
+    {
         Destroy(gameObject);
+        //Delete enemy from enemy pool
     }
 
     //----------------------------------------------------------------------------------------------------------------------------
 
     protected virtual void OnTriggerEnter(Collider col)
     {
+        currentCol = col;
         if (col.CompareTag("Arrow"))
         {
             EvaluateDamage(col.GetComponent<ArrowData>().arrowDamage);
             HandleDamageAnimation(col);
         }
+    }
+    protected virtual void OnTriggerExit(Collider col)
+    {
+        if (col == currentCol) currentCol = null;
     }
 
     //----------------------------------------------------------------------------------------------------------------------------
@@ -234,6 +227,8 @@ public class Enemy : MonoBehaviour
     public virtual void FixedUpdate()
     {
         HandleMovement();
+        HandleMovementSpeed();
+        HandleLevitate();
     }
 
     private void HandleMovement()
@@ -245,23 +240,18 @@ public class Enemy : MonoBehaviour
             if (moveLeft == true) MoveHorizontal(1);
             else if (moveLeft == false) MoveHorizontal(-1);
         }
-        HandleLevitate();
-        HandleSpeedLimit();
     }
-
-    private void MoveForward(int direction) => 
-        rb.AddForce(50f * moveSpeed * (-Vector3.forward * direction), ForceMode.Force);
-    private void MoveHorizontal(int direction) => 
-        rb.AddForce(50f * moveSpeed * (Vector3.right * direction), ForceMode.Force);
-
-    private void HandleSpeedLimit()
+    private void MoveForward(int direction) => ApplyMovement(-Vector3.forward * direction, moveSpeed);
+    private void MoveHorizontal(int direction) => ApplyMovement(Vector3.right * direction, moveSpeed);
+    public void ApplyMovement(Vector3 direction, float speed)
+    {
+        rb.AddForce(50f * speed * direction, ForceMode.Force);
+    }
+    private void HandleMovementSpeed()
     {
         Vector3 flatVel = new(rb.velocity.x, 0f, rb.velocity.z);
-        if (flatVel.magnitude > moveSpeed)
-        {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
-            rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
-        }
+        float clampedSpeed = Mathf.Clamp(flatVel.magnitude, 0, moveSpeed);
+        rb.velocity = new Vector3(flatVel.normalized.x * clampedSpeed, rb.velocity.y, flatVel.normalized.z * clampedSpeed);
     }
     private void HandleLevitate()
     {
@@ -297,5 +287,31 @@ public class Enemy : MonoBehaviour
             em.enabled = b;
         }
     }
- 
+
+    private void SetMovement(bool? forward, bool? left = null)
+    {
+        canMove = true;
+        moveForward = forward;
+        moveLeft = left;
+        animator.SetBool("EnemyIdle", false);
+        ChangeState(EnemyState.AwaitNextAction);
+    }
+    public void SetActive(bool b)
+    {
+        canMove = b;
+        animator.enabled = b;
+        rb.isKinematic = !b;
+
+        if (b)
+        {
+            rb.constraints = RigidbodyConstraints.None;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+        }
+        else
+        {
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            ChangeState(EnemyState.AwaitNextAction);
+        }
+    }
+
 }

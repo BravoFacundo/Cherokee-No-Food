@@ -37,27 +37,6 @@ public class Ninja : Enemy
         else if (col.name == "Trigger_45Meters") ChangeState(EnemyState.Attack);
     }
 
-    public override void EnemyAttack()
-    {
-        StartCoroutine(nameof(EnemyJumpAnimation));
-        ChangeState(EnemyState.AwaitNextAction);
-    }
-    private IEnumerator EnemyJumpAnimation()
-    {
-        GameObject newBomb = Instantiate(bombPrefab, transform.position, transform.rotation);
-        Destroy(gameObject);
-        yield return new WaitForSeconds(2f);
-    }
-    public override void EnemyJumpAttack()
-    {
-        StartCoroutine(nameof(EnemyJumpAttackAnimation));
-        ChangeState(EnemyState.AwaitNextAction);
-    }
-    private IEnumerator EnemyJumpAttackAnimation()
-    {
-        yield return new WaitForSeconds(2f);
-    }
-
     public override void EnemyHit()
     {
         StartCoroutine(nameof(EnemyHitAnimation));
@@ -81,4 +60,26 @@ public class Ninja : Enemy
         Destroy(newTrunk);
         //canMove = true;
     }
+    public override void EnemyAttack()
+    {
+        StartCoroutine(nameof(EnemyJumpAnimation));
+        ChangeState(EnemyState.AwaitNextAction);
+    }
+    private IEnumerator EnemyJumpAnimation()
+    {
+        GameObject newBomb = Instantiate(bombPrefab, transform.position, transform.rotation);
+        Utilities.RepositionToObjectPool(gameObject);
+        this.SetActive(false);
+        yield return new WaitForSeconds(2f);
+    }
+    public override void EnemyJumpAttack()
+    {
+        StartCoroutine(nameof(EnemyJumpAttackAnimation));
+        ChangeState(EnemyState.AwaitNextAction);
+    }
+    private IEnumerator EnemyJumpAttackAnimation()
+    {
+        yield return new WaitForSeconds(2f);
+    }
+    
 }

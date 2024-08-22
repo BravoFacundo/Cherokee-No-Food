@@ -4,9 +4,6 @@ using UnityEngine;
 
 public class Boss : Enemy
 {
-    [Header("States")]
-    [SerializeField] private List<EnemyState> bossStates;
-
     [Header("Configuration")]
     [SerializeField] private float jumpMaxHeight;
     [SerializeField] private float landRecoveryTime;

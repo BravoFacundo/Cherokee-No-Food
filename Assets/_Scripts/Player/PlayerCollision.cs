@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlayerCollision : MonoBehaviour
 {
-    [SerializeField] private PlayerController playerController;
+    public PlayerController playerController;
 
     private void OnTriggerEnter(Collider col)
     {
@@ -18,16 +18,6 @@ public class PlayerCollision : MonoBehaviour
                 print("Projectile ataca");
                 StartCoroutine(playerController.DamagePlayer(1));
                 Destroy(colObj); //Provisional
-                break;
-
-            //---------------Enemy Damage--------------------//
-
-            case string name when name.StartsWith("Thug"):
-                StartCoroutine(playerController.EnemyAttack(1, "Thug", colObj));
-                break;
-
-            case string name when name.StartsWith("Sumo"):
-                StartCoroutine(playerController.EnemyAttack(1, "Sumo", colObj));
                 break;
 
             //---------------Deployable Damage---------------//
@@ -50,6 +40,16 @@ public class PlayerCollision : MonoBehaviour
                 print("Knife Impact");
                 StartCoroutine(playerController.DamagePlayer(2));
                 Destroy(colObj); //Provisional
+                break;
+
+            //---------------Imposibble Enemy Damage--------------------//
+
+            case string name when name.StartsWith("Ninja"):
+                StartCoroutine(playerController.EnemyAttack(0, "Ninja", colObj));
+                break;
+
+            case string name when name.StartsWith("Boss"):
+                StartCoroutine(playerController.EnemyAttack(0, "Boss", colObj));
                 break;
 
         }

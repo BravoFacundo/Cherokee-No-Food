@@ -9,12 +9,13 @@ public class EnemySpawnHandler : MonoBehaviour
     [SerializeField] float startDelay;
 
     [Header("Spawn Points")]
-    [SerializeField] Vector3 doorSpawPoint;
-    [SerializeField] Vector3 windowSpawPoint;
+    [SerializeField] Transform doorSpawnPoint;
+    [SerializeField] Transform windowSpawnPoint;
+    private Vector3 doorSpawnPosition;
+    private Vector3 windowSpawnPosition;
 
     [Header("References")]
     [SerializeField] GameManager gameManager;
-    [SerializeField] PlayerController playerController;
     [SerializeField] ParticleManager particleController;
     private Transform player;
 
@@ -24,6 +25,8 @@ public class EnemySpawnHandler : MonoBehaviour
     private IEnumerator Start()
     {
         player = Camera.main.transform;
+        doorSpawnPosition = doorSpawnPoint.position;
+        windowSpawnPosition = windowSpawnPoint.position;
 
         yield return new WaitForSeconds(startDelay);
         if (spawnThisAtStart != null) StartCoroutine(SpawnEnemi());        
@@ -32,7 +35,7 @@ public class EnemySpawnHandler : MonoBehaviour
     private IEnumerator SpawnEnemi()
     {
         yield return new WaitForSeconds(2f);
-        SpawnEnemy(2, doorSpawPoint);
+        SpawnEnemy(3, doorSpawnPosition);
     }
 
     public void SpawnEnemies(string enemiesToSpawn) => SpawnEnemies(enemiesToSpawn, 0);
@@ -40,7 +43,7 @@ public class EnemySpawnHandler : MonoBehaviour
     {
         for (int i = 0; i < enemiesToSpawn.Length; i++)
         {
-            SpawnEnemy(int.Parse(enemiesToSpawn[i].ToString()), doorSpawPoint);
+            SpawnEnemy(int.Parse(enemiesToSpawn[i].ToString()), doorSpawnPosition);
             yield return new WaitForSeconds(timeBetween);
         }
     }
@@ -54,7 +57,6 @@ public class EnemySpawnHandler : MonoBehaviour
     private void UpdateEnemyReferences(GameObject newEnemy, int enemyToSpawn)
     {
         var newEnemyScript = newEnemy.GetComponent<Enemy>();
-        newEnemyScript.playerController = playerController;
         newEnemyScript.particleManager = particleController;        
         newEnemy.GetComponent<LookAtCamera>().target = player;
 

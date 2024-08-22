@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Utilities : MonoBehaviour
 {
+    public static Vector3 objectPoolPosition = new Vector3(0, 50, -20);
+
     public static void DestroyChildElements(GameObject parentObject)
     {
         foreach (Transform child in parentObject.transform)
@@ -29,4 +31,9 @@ public class Utilities : MonoBehaviour
         }
         return 0f;
     }
+    public static void RepositionToObjectPool(GameObject repositionObject)
+    {
+        repositionObject.transform.position = objectPoolPosition;
+    }
+
 }

@@ -7,6 +7,7 @@ public class PlayerController : MonoBehaviour
     [Header("Config")]
     [SerializeField] int playerHealth = 11;
     [SerializeField] bool beingAttacked = false;
+    [SerializeField] GameObject currentAttackingEnemy;
     private bool checkFirst = false;
     
     [Header("References")]
@@ -55,6 +56,7 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator EnemyAttack(int damageReceived, string character, GameObject enemyObj)
     {
+        currentAttackingEnemy = enemyObj;
         if (beingAttacked && !checkFirst)
         {
             gameManager.SetGameState("pause", true);
@@ -62,31 +64,18 @@ public class PlayerController : MonoBehaviour
             checkFirst = true;
         }
         else
-            switch (character)
+        {
+            beingAttacked = true;
+            enemyAttackAnimator.SetBool($"{character}_Attacking", beingAttacked);
+            StartCoroutine(nameof(ReceivingDamage));
+
+            if (character != "Thug" && character != "Sumo")
             {
-                case "Thug":
-                    beingAttacked = true;
-                    enemyAttackAnimator.SetBool("Thug_Attacking", beingAttacked);
-                    Destroy(enemyObj);
-                    StartCoroutine(nameof(ReceivingDamage));
-                    break;
-
-                case "Sumo":
-                    beingAttacked = true;
-                    enemyAttackAnimator.SetBool("Sumo_Attacking", beingAttacked);
-                    Destroy(enemyObj);
-                    StartCoroutine(nameof(ReceivingDamage));
-                    yield return new WaitForSeconds(1f);
-                    break;
-
-                case "Ninja":
-                    Destroy(enemyObj); Debug.Log("Ninja reach player. It should not be possible");
-                    break;
-                case "Boss":
-                    Destroy(enemyObj); Debug.Log("Boss reach player. It should not be possible");
-                    break;
-
+                Debug.LogError(enemyObj.name + " reached player. This should not be possible.");
+                Destroy(enemyObj);
             }
+        }            
+        yield break;
     }
 
     private IEnumerator ReceivingDamage()
@@ -117,7 +106,6 @@ public class PlayerController : MonoBehaviour
 
     public IEnumerator StopReceivingDamage()
     {
-        yield return new WaitForSeconds(0);
         if (beingAttacked)
         {
             beingAttacked = false; checkFirst = false;
@@ -127,7 +115,11 @@ public class PlayerController : MonoBehaviour
             enemyAttackAnimator.SetBool("Thug_Attacking", beingAttacked);
             StopCoroutine(nameof(DamagePlayer));
             StopCoroutine(nameof(ReceivingDamage));
+
+            currentAttackingEnemy.GetComponent<Enemy>().EnemyDelete();
+            currentAttackingEnemy = null;
         }
+        yield break;
     }
 
     //-------------------------------------------------------------------------------------------------------------------------
