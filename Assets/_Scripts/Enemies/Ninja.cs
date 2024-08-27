@@ -2,16 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Ninja : Enemy
+public class Ninja : LongRangeEnemy
 {
-    [Header("Configuration")]
-    [SerializeField] private float jumpMaxHeight;
-    [SerializeField] private float landRecoveryTime;
-
-    [Header("Prefabs")]
     [SerializeField] private GameObject trunkPrefab;
-    [SerializeField] private GameObject bombPrefab;
-    [SerializeField] private GameObject shurikenPrefab;
 
     public override void Update()
     {

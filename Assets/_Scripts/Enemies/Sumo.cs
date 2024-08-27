@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Sumo : Enemy
+public class Sumo : CloseRangeEnemy
 {
     public override void Update()
     {

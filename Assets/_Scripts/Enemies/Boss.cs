@@ -2,17 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Boss : Enemy
+public class Boss : LongRangeEnemy
 {
-    [Header("Configuration")]
-    [SerializeField] private float jumpMaxHeight;
-    [SerializeField] private float landRecoveryTime;
-
-    [Header("Prefabs")]
-    [SerializeField] private GameObject bombPrefab;
-    [SerializeField] private GameObject knifePrefab;
-    [SerializeField] private GameObject landSmokePrefab;
-
     private bool _isGroundedLock = false;
 
     public override void Start()
